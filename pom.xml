@@ -45,6 +45,12 @@
             <artifactId>flyway-database-postgresql</artifactId>
             <version>11.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version> <!-- Используйте актуальную версию -->
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>InfoHub</finalName>
