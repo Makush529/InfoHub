@@ -1,15 +1,16 @@
 package com.IH.controller;
 
+import com.IH.model.dto.RequestRegistrationDTO;
 import com.IH.service.SecurityService;
 import com.IH.model.dto.UserResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.time.LocalDate;
@@ -31,14 +32,19 @@ public class SecurityController {
     }
 
     @PostMapping("/registration")
-    public String registration(
-            @RequestParam("login") String login,
-            @RequestParam("password") String password,
-            @RequestParam("firstname") String firstname,
-            @RequestParam("birthDate")@DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate birthDate,
-            Model model
-            ) {
-        UserResponse userResponse = securityService.registration(login, password, firstname,birthDate);
+    public String registration(@ModelAttribute @Valid
+                               RequestRegistrationDTO requestRegistrationDTO,
+                               BindingResult bindingResult,
+                               Model model){
+        if(bindingResult.hasErrors()){
+            for(ObjectError error : bindingResult.getAllErrors()){
+                System.out.println(error.getDefaultMessage());
+            }
+            model.addAttribute("errors", bindingResult.getAllErrors());
+            return "error";
+        }
+
+        UserResponse userResponse = securityService.registration(requestRegistrationDTO);
         model.addAttribute("login", userResponse.getLogin());
         model.addAttribute("firstname", userResponse.getFirstname());
         System.out.println("ok");
