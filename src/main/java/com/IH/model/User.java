@@ -7,5 +7,5 @@ public class User {
     private String password;
     private String username;
     private String firstname;
-    private LocalDate age;
+    private LocalDate birthDate;
 }
