@@ -5,6 +5,7 @@ import com.IH.service.SecurityService;
 import com.IH.model.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,12 +14,15 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 @Controller
-@EnableWebMvc
 @RequestMapping("/security")
 public class SecurityController {
+
     @Autowired
     private final SecurityService securityService;
 
@@ -50,4 +54,5 @@ public class SecurityController {
         System.out.println("ok");
         return "profile";
     }
+
 }
