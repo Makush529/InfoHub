@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 @Scope("prototype")

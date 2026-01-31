@@ -6,3 +6,7 @@ alter table security
 
 create unique index username__index
     on security (username);
+
+alter table security
+drop column username;
+

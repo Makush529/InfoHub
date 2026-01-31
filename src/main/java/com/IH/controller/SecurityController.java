@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -39,11 +40,20 @@ public class SecurityController {
     public String registration(@ModelAttribute @Valid
                                RequestRegistrationDTO requestRegistrationDTO,
                                BindingResult bindingResult,
-                               Model model){
-        if(bindingResult.hasErrors()){
-            for(ObjectError error : bindingResult.getAllErrors()){
-                System.out.println(error.getDefaultMessage());
+                               Model model) throws SQLException {
+        if (bindingResult.hasErrors()) {
+            System.out.println("=== ОБНАРУЖЕНЫ ОШИБКИ ВАЛИДАЦИИ ===");
+
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                // Выводим тип ошибки и сообщение
+                System.out.println("Ошибка: " + error.getObjectName() + " - " + error.getDefaultMessage());
+
+                // Если это ошибка конкретного поля (FieldError), выведем и имя поля
+                if (error instanceof FieldError fieldError) {
+                    System.out.println("Поле: " + fieldError.getField() + " | Значение: " + fieldError.getRejectedValue());
+                }
             }
+
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "error";
         }
