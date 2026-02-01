@@ -1,5 +1,6 @@
 package com.IH.service;
 
+import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.RequestRegistrationDTO;
 import com.IH.model.dto.UserResponse;
 import com.IH.repository.SecurityRepository;
@@ -23,18 +24,15 @@ public class SecurityService {
                 requestRegistrationDTO.getPassword(),
                 requestRegistrationDTO.getFirstname(),
                 requestRegistrationDTO.getBirthDate()
-
         );
-
-        System.out.println(requestRegistrationDTO.getLogin());
-        System.out.println(requestRegistrationDTO.getPassword());
-        System.out.println(requestRegistrationDTO.getFirstname());
-        System.out.println(requestRegistrationDTO.getBirthDate());
 
         UserResponse userResponse = new UserResponse();
         userResponse.setLogin(requestRegistrationDTO.getLogin());
         userResponse.setFirstname(requestRegistrationDTO.getFirstname());
 
         return userResponse;
+    }
+    public String login(RequestLoginDTO loginDTO) throws SQLException {
+        return securityRepository.getUserByCredentials(loginDTO.getLogin(), loginDTO.getPassword());
     }
 }

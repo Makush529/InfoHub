@@ -1,24 +1,20 @@
 package com.IH.controller;
 
+import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.RequestRegistrationDTO;
 import com.IH.service.SecurityService;
 import com.IH.model.dto.UserResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/security")
@@ -63,6 +59,43 @@ public class SecurityController {
         model.addAttribute("firstname", userResponse.getFirstname());
         System.out.println("ok");
         return "profile";
+    }
+
+    @GetMapping("/login")
+    public String getLoginPage() {
+        return "login"; // имя jsp файла
+    }
+
+    @PostMapping("/login")
+    public String login(@ModelAttribute RequestLoginDTO loginDTO,
+                        HttpSession session, Model model) throws SQLException {
+        String firstName = securityService.login(loginDTO);
+
+        if (firstName != null) {
+            session.setAttribute("userName", firstName);
+            return "redirect:/security/profile"; // идем в профиль, редирект чтобы не переотправлять форму при Ф5
+        } else {
+            model.addAttribute("error", "Неверный логин или пароль");
+            return "login"; // ошибка
+        }
+    }
+
+    @GetMapping("/profile")
+    public String getProfilePage(HttpSession session, Model model) {
+        String name = (String) session.getAttribute("userName");
+//проверка в сессии
+        if (name == null) {
+            return "redirect:/security/login";
+        }
+
+        model.addAttribute("name", name);
+        return "profile";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/security/login";
     }
 
 }

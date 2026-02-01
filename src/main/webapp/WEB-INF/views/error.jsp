@@ -7,5 +7,6 @@
 <body>
 Wou have errors:
 ${errors}
+ХЗ, смотри АОП в консоли!!
 </body>
 </html>
