@@ -16,3 +16,6 @@ alter table users
 alter table posts
 alter column user_id type bigint using user_id::bigint;
 
+alter table posts
+alter column post_name type varchar(255) using post_name::varchar(255);
+

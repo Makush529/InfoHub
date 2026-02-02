@@ -2,6 +2,7 @@ package com.IH.repository;
 
 
 import com.IH.SQLCommands;
+import com.IH.model.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -29,14 +30,17 @@ public class SecurityRepository {
             statement.execute();
         }
     }
-    public String getUserByCredentials(String login, String password) throws SQLException {
+    public UserResponse getUserByCredentials(String login, String password) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(SQLCommands.AUTH_USER)) {
             statement.setString(1, login);
             statement.setString(2, password);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getString("username");
+                    UserResponse user  = new UserResponse();
+                    user.setUsername(resultSet.getString("username"));
+                    user.setId(resultSet.getLong("id"));
+                    return user;
                 }
             }
         }

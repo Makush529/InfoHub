@@ -18,6 +18,7 @@ public class SecurityService {
     public SecurityService(SecurityRepository securityRepository) {
         this.securityRepository = securityRepository;
     }
+
     public UserResponse registration(RequestRegistrationDTO requestRegistrationDTO) throws SQLException {
         securityRepository.registerUser(
                 requestRegistrationDTO.getLogin(),
@@ -32,7 +33,7 @@ public class SecurityService {
 
         return userResponse;
     }
-    public String login(RequestLoginDTO loginDTO) throws SQLException {
+    public UserResponse login(RequestLoginDTO loginDTO) throws SQLException {
         return securityRepository.getUserByCredentials(loginDTO.getLogin(), loginDTO.getPassword());
     }
 }

@@ -44,7 +44,6 @@ public class SecurityController {
             for (ObjectError error : bindingResult.getAllErrors()) {
                 // Выводим тип ошибки и сообщение
                 System.out.println("Ошибка: " + error.getObjectName() + " - " + error.getDefaultMessage());
-
                 // Если это ошибка конкретного поля (FieldError), выведем и имя поля
                 if (error instanceof FieldError fieldError) {
                     System.out.println("Поле: " + fieldError.getField() + " | Значение: " + fieldError.getRejectedValue());
@@ -59,8 +58,9 @@ public class SecurityController {
         model.addAttribute("login", userResponse.getLogin());
         model.addAttribute("username", userResponse.getUsername());
         session.setAttribute("username", userResponse.getUsername());
+        session.setAttribute("userId", userResponse.getId());
         System.out.println("ok");
-        return "redirect:security/profile";
+        return "redirect:/security/profile";
     }
 
     @GetMapping("/login")
@@ -71,10 +71,10 @@ public class SecurityController {
     @PostMapping("/login")
     public String login(@ModelAttribute RequestLoginDTO loginDTO,
                         HttpSession session, Model model) throws SQLException {
-        String username = securityService.login(loginDTO);
-
-        if (username != null) {
-            session.setAttribute("username", username);
+        UserResponse user = securityService.login(loginDTO); // Измени тип возвращаемого значения в сервисе
+        if (user != null) {
+            session.setAttribute("username", user.getUsername());
+            session.setAttribute("userId", user.getId());
             return "redirect:/security/profile"; // идем в профиль, редирект чтобы не переотправлять форму при Ф5
         } else {
             model.addAttribute("error", "Неверный логин или пароль");
@@ -85,11 +85,12 @@ public class SecurityController {
     @GetMapping("/profile")
     public String getProfilePage(HttpSession session, Model model) {
         String username = (String) session.getAttribute("username");
+        Long userId = (Long) session.getAttribute("userId");
         if (username == null) {
             return "redirect:/security/login";
         }
-
         model.addAttribute("username", username);
+        model.addAttribute("userId", userId);
         return "profile";
     }
 
