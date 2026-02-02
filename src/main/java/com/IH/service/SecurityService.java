@@ -22,13 +22,13 @@ public class SecurityService {
         securityRepository.registerUser(
                 requestRegistrationDTO.getLogin(),
                 requestRegistrationDTO.getPassword(),
-                requestRegistrationDTO.getFirstname(),
+                requestRegistrationDTO.getUsername(),
                 requestRegistrationDTO.getBirthDate()
         );
 
         UserResponse userResponse = new UserResponse();
         userResponse.setLogin(requestRegistrationDTO.getLogin());
-        userResponse.setFirstname(requestRegistrationDTO.getFirstname());
+        userResponse.setUsername(requestRegistrationDTO.getUsername());
 
         return userResponse;
     }

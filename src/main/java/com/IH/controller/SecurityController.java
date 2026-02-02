@@ -36,6 +36,7 @@ public class SecurityController {
     public String registration(@ModelAttribute @Valid
                                RequestRegistrationDTO requestRegistrationDTO,
                                BindingResult bindingResult,
+                               HttpSession session,
                                Model model) throws SQLException {
         if (bindingResult.hasErrors()) {
             System.out.println("=== ОБНАРУЖЕНЫ ОШИБКИ ВАЛИДАЦИИ ===");
@@ -56,9 +57,10 @@ public class SecurityController {
 
         UserResponse userResponse = securityService.registration(requestRegistrationDTO);
         model.addAttribute("login", userResponse.getLogin());
-        model.addAttribute("firstname", userResponse.getFirstname());
+        model.addAttribute("username", userResponse.getUsername());
+        session.setAttribute("username", userResponse.getUsername());
         System.out.println("ok");
-        return "profile";
+        return "redirect:security/profile";
     }
 
     @GetMapping("/login")
@@ -69,10 +71,10 @@ public class SecurityController {
     @PostMapping("/login")
     public String login(@ModelAttribute RequestLoginDTO loginDTO,
                         HttpSession session, Model model) throws SQLException {
-        String firstName = securityService.login(loginDTO);
+        String username = securityService.login(loginDTO);
 
-        if (firstName != null) {
-            session.setAttribute("userName", firstName);
+        if (username != null) {
+            session.setAttribute("username", username);
             return "redirect:/security/profile"; // идем в профиль, редирект чтобы не переотправлять форму при Ф5
         } else {
             model.addAttribute("error", "Неверный логин или пароль");
@@ -82,13 +84,12 @@ public class SecurityController {
 
     @GetMapping("/profile")
     public String getProfilePage(HttpSession session, Model model) {
-        String name = (String) session.getAttribute("userName");
-//проверка в сессии
-        if (name == null) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
             return "redirect:/security/login";
         }
 
-        model.addAttribute("name", name);
+        model.addAttribute("username", username);
         return "profile";
     }
 
@@ -97,5 +98,4 @@ public class SecurityController {
         session.invalidate();
         return "redirect:/security/login";
     }
-
 }

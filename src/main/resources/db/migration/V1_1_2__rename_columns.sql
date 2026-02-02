@@ -10,3 +10,9 @@ create unique index username__index
 alter table security
 drop column username;
 
+alter table users
+    rename column first_name to username;
+
+alter table posts
+alter column user_id type bigint using user_id::bigint;
+

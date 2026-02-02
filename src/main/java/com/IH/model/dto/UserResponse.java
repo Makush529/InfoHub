@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class UserResponse {
     private String login;
-    private String firstname;
+    private String username;
 }

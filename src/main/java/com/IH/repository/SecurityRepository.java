@@ -20,9 +20,9 @@ public class SecurityRepository {
         this.connection = connection;
     }
 
-    public void registerUser(String login, String password, String firstname, LocalDate age) throws SQLException {
+    public void registerUser(String login, String password, String username, LocalDate age) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(SQLCommands.REGISTER_USER)) {
-            statement.setString(1, firstname);
+            statement.setString(1, username);
             statement.setObject(2, age);
             statement.setString(3, login);
             statement.setString(4, password);
@@ -36,7 +36,7 @@ public class SecurityRepository {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getString("first_name");
+                    return resultSet.getString("username");
                 }
             }
         }

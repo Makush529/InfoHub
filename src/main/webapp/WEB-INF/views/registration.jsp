@@ -18,7 +18,7 @@
     </div>
     <div>
         <label for="firstname">First Name:</label>
-        <input type="text" id="firstname" name="firstname" required>
+        <input type="text" id="username" name="username" required>
     </div>
     <div>
         <label for="birthDate">Birth Date:</label>

@@ -12,7 +12,7 @@ public class RequestRegistrationDTO {
     @Size(min = 3, max = 50)
     String login;
     String password;
-    String firstname;
+    String username;
     @DateTimeFormat(iso=DateTimeFormat.ISO.DATE)
     LocalDate birthDate;
 }
