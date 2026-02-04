@@ -22,7 +22,7 @@ public class PostService {
     }
     public void createPost(RequestPostDTO dto, Long userId) throws SQLException {
         //проверка текста на мат или запрещенку
-        postRepository.savePost(dto.getPostName(), dto.getTitle(), userId);
+        postRepository.savePost(dto.getPostTitle(), dto.getText(), userId);
     }
 
     public List<PostResponse> getFeed() throws SQLException {

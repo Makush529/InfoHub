@@ -26,7 +26,7 @@
     </a>
 
     <!-- Кнопка перехода на главную ленту -->
-    <a href="/" class="btn-secondary" style="display: block; text-decoration: none; padding: 10px; background: #f1f1f1; color: #555; border-radius: 4px; text-align: center; margin-bottom: 10px;">
+    <a href="/posts/feed" class="btn-secondary" style="display: block; text-decoration: none; padding: 10px; background: #f1f1f1; color: #555; border-radius: 4px; text-align: center; margin-bottom: 10px;">
         На главную страницу
     </a>
     <%-- Ссылка на Logout, стилизованная под кнопку --%>

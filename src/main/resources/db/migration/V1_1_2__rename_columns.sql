@@ -19,3 +19,9 @@ alter column user_id type bigint using user_id::bigint;
 alter table posts
 alter column post_name type varchar(255) using post_name::varchar(255);
 
+alter table posts
+    rename column post_name to post_title;
+
+alter table posts
+    rename column title to text;
+

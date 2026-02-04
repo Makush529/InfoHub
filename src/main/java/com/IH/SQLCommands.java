@@ -12,9 +12,9 @@ public interface SQLCommands {
                     "  RETURNING id) " +
                     "INSERT INTO public.security (login, password, user_id) " +
                     "VALUES (?, ?, (SELECT id FROM inserted_user))";
-    String CREATE_POST = "INSERT INTO posts (post_name, title, post_age, user_id) VALUES (?, ?, CURRENT_DATE, ?)";
+    String CREATE_POST = "INSERT INTO posts (post_title, text, post_age, user_id) VALUES (?, ?, CURRENT_DATE, ?)";
     String GET_ALL_POSTS =
-            "SELECT posts.id, posts.post_name, posts.title, posts.post_age, users.username " +
+            "SELECT posts.id, posts.post_title, posts.text, posts.post_age, users.username " +
                     "FROM posts JOIN users ON posts.user_id = users.id " +
                     "ORDER BY posts.id DESC";
 }

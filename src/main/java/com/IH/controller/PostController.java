@@ -1,6 +1,5 @@
 package com.IH.controller;
 
-
 import com.IH.model.dto.PostResponse;
 import com.IH.model.dto.RequestPostDTO;
 import com.IH.service.PostService;
@@ -20,9 +19,10 @@ import java.util.List;
 @RequestMapping("/posts")
 public class PostController {
 
-    @Autowired
+
     private final PostService postService;
 
+    @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
     }
@@ -41,18 +41,22 @@ public class PostController {
         if (userId == null) return "redirect:/security/login";
 
         postService.createPost(dto, userId);
-        return "redirect:/";
-
+        return "redirect:/posts/feed";
     }
-    @GetMapping({"/feed","/"})
+
+    @GetMapping({ "/feed"})
     public String getFeed(Model model) throws SQLException {
         try {
             List<PostResponse> posts = postService.getFeed();
             model.addAttribute("postsList", posts);
-            return "index"; // или "feed"
+            for (PostResponse post : posts) {
+                System.out.println(post.getPostTitle());
+                System.out.println(post.getText());
+            }
+            return "/feed";
         } catch (Exception e) {
-            e.printStackTrace(); // <--- СМОТРИ СЮДА!
-            return "error"; // Переходим на страницу ошибки, как обычно
+            e.printStackTrace();
+            return "error";
         }
     }
 }

@@ -40,8 +40,8 @@ public class PostRepository {
             while (rs.next()) {
                 PostResponse post = new PostResponse();//один пост
                 post.setId(rs.getLong("id"));
-                post.setPostName(rs.getString("post_name"));
-                post.setTitle(rs.getString("title"));
+                post.setPostTitle(rs.getString("post_title"));
+                post.setText(rs.getString("text"));
                 post.setAuthorName(rs.getString("username"));
                 java.sql.Date dbDate = rs.getDate("post_age");
                 if (dbDate != null) {

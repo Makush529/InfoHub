@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 public class RequestPostDTO {
     @Size(min = 5, max = 100)
-    private String postName;
+    private String postTitle;
 
     @NotBlank
-    private String title;
+    private String text;
 }

@@ -7,8 +7,8 @@ import java.time.LocalDate;
 @Data
 public class PostResponse {
     private Long id;
-    private String postName; // Заголовок
-    private String title;    // Текст
+    private String postTitle; // Заголовок
+    private String text;    // Текст
     private String authorName; // Имя автора (получим через JOIN)
     private LocalDate postAge; // Дата
     private Integer rating;    // Будем вычислять позже
