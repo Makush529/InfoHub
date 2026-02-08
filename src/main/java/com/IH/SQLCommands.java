@@ -17,4 +17,5 @@ public interface SQLCommands {
             "SELECT posts.id, posts.post_title, posts.text, posts.post_age, users.username " +
                     "FROM posts JOIN users ON posts.user_id = users.id " +
                     "ORDER BY posts.id DESC";
+    String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
 }

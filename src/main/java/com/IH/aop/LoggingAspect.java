@@ -19,9 +19,11 @@ public class LoggingAspect {
     @Before("controllerMethods()")
     public void logBeforeMethod(JoinPoint joinPoint) {
         String methodName = joinPoint.getSignature().getName();
+        String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
         Object[] args = joinPoint.getArgs();
 
         System.out.println("\n===== AOP LOG START =====");
+        System.out.println("Вызван класс: " + className);
         System.out.println("Вызван метод: " + methodName);
         System.out.println("Аргументы: " + Arrays.toString(args));
         System.out.println("===== AOP LOG END =====\n");
