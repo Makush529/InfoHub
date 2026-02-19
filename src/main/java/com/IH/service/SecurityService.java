@@ -3,11 +3,13 @@ package com.IH.service;
 import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.RequestRegistrationDTO;
 import com.IH.model.dto.UserResponse;
+import com.IH.model.dto.rest.UserDto;
 import com.IH.repository.SecurityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 @Service
 public class SecurityService {
@@ -33,7 +35,18 @@ public class SecurityService {
 
         return userResponse;
     }
+
     public UserResponse login(RequestLoginDTO loginDTO) throws SQLException {
         return securityRepository.getUserByCredentials(loginDTO.getLogin(), loginDTO.getPassword());
+    }
+
+    public Optional<UserDto> findById(long id) {
+        try {
+            Optional<UserDto> user = securityRepository.getUserById(id);
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 }

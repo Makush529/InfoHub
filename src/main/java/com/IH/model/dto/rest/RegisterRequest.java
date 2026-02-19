@@ -1,4 +1,4 @@
-package com.IH.model.dto;
+package com.IH.model.dto.rest;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -7,9 +7,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+
 @Scope("prototype")
 @Data
-public class RequestRegistrationDTO {
+public class RegisterRequest {
     @Size(min = 3, max = 50)
     String login;
     @NotBlank

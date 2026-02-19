@@ -25,3 +25,10 @@ alter table posts
 alter table posts
     rename column title to text;
 
+alter table security
+alter column login type char(20) using login::char(20);
+
+alter table security
+alter column password type char(20) using password::char(20);
+
+ALTER TABLE posts ADD COLUMN status VARCHAR(20) DEFAULT 'PENDING';

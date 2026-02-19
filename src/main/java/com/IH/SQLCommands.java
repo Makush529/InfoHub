@@ -17,5 +17,9 @@ public interface SQLCommands {
             "SELECT posts.id, posts.post_title, posts.text, posts.post_age, users.username " +
                     "FROM posts JOIN users ON posts.user_id = users.id " +
                     "ORDER BY posts.id DESC";
-    String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
+    String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";//поиск через юзер(старый)
+    String GET_USER_BY_ID_FULL =//поиск через authcontroller
+            "SELECT u.id, u.username, u.user_age, s.login " +//добавить рейтинги и роль
+                    "FROM users u JOIN security s ON u.id = s.user_id " +
+                    "WHERE u.id = ?";
 }

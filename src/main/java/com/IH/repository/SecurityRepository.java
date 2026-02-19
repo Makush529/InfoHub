@@ -2,7 +2,9 @@ package com.IH.repository;
 
 
 import com.IH.SQLCommands;
+import com.IH.model.User;
 import com.IH.model.dto.UserResponse;
+import com.IH.model.dto.rest.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 public class SecurityRepository {
@@ -45,5 +48,24 @@ public class SecurityRepository {
             }
         }
         return null;
+    }
+    public Optional<UserDto> getUserById(long id) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(SQLCommands.GET_USER_BY_ID_FULL)) {
+            statement.setLong(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    UserDto user = new UserDto();
+                    user.setId(resultSet.getLong("id"));
+                    user.setLogin(resultSet.getString("login"));
+                    user.setUsername(resultSet.getString("username"));
+                    if (resultSet.getDate("user_age") != null) {
+                        user.setBirthDate(resultSet.getDate("user_age").toLocalDate());
+                    }
+                    user.setRating(0);
+                    return Optional.of(user);
+                }
+            }
+        }
+        return Optional.empty(); // Если юзер не найден
     }
 }
