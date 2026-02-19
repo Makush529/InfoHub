@@ -1,18 +1,15 @@
 package com.IH.repository;
 
-import com.IH.SQLCommands;
 import com.IH.model.dto.PostResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.IH.SQLCommands.CREATE_POST;
+import static com.IH.SQLCommandsPosts.CREATE_POST;
+import static com.IH.SQLCommandsPosts.GET_ALL_POSTS;
 
 @Repository
 public class PostRepository {
@@ -21,6 +18,22 @@ public class PostRepository {
     @Autowired
     public PostRepository(Connection connection) {
         this.connection = connection;
+    }
+
+    public Long createPost(String title, String content, Long user_id) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(CREATE_POST, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, title);
+            statement.setString(2, content);
+            statement.setLong(3, user_id);
+            statement.executeUpdate();
+
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        }
+        return null;
     }
 
     public void savePost(String postName, String text, Long userId) throws SQLException {
@@ -34,7 +47,7 @@ public class PostRepository {
 
     public List<PostResponse> findAll() throws SQLException {
         List<PostResponse> posts = new ArrayList<>();//список постов
-        try (PreparedStatement ps = connection.prepareStatement(SQLCommands.GET_ALL_POSTS);
+        try (PreparedStatement ps = connection.prepareStatement(GET_ALL_POSTS);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {

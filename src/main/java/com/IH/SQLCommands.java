@@ -12,14 +12,10 @@ public interface SQLCommands {
                     "  RETURNING id) " +
                     "INSERT INTO public.security (login, password, user_id) " +
                     "VALUES (?, ?, (SELECT id FROM inserted_user))";
-    String CREATE_POST = "INSERT INTO posts (post_title, text, post_age, user_id) VALUES (?, ?, CURRENT_DATE, ?)";
-    String GET_ALL_POSTS =
-            "SELECT posts.id, posts.post_title, posts.text, posts.post_age, users.username " +
-                    "FROM posts JOIN users ON posts.user_id = users.id " +
-                    "ORDER BY posts.id DESC";
     String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";//поиск через юзер(старый)
     String GET_USER_BY_ID_FULL =//поиск через authcontroller
             "SELECT u.id, u.username, u.user_age, s.login " +//добавить рейтинги и роль
                     "FROM users u JOIN security s ON u.id = s.user_id " +
                     "WHERE u.id = ?";
+
 }
