@@ -2,23 +2,25 @@ package com.IH.controller;
 
 import com.IH.model.dto.PostResponse;
 import com.IH.model.dto.RequestPostDTO;
+import com.IH.model.dto.rest.CreatePostRequest;
+import com.IH.model.dto.rest.PostDto;
 import com.IH.service.PostService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
-@Controller
-@RequestMapping("/posts")
+@RestController
+@RequestMapping("/api/posts")
 public class PostController {
-
 
     private final PostService postService;
 
@@ -28,23 +30,46 @@ public class PostController {
     }
 
     @GetMapping("/create")
-    public String getCreateForm(HttpSession session) {
-        if (session.getAttribute("userId") == null) {
-            return "redirect:/security/login";
+    public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest postRequest, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not logged in");
         }
-        return "create-post";
+        Optional<Long>postId = postService.createPost(postRequest, userId);
+        if (postId.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body("Post created, id: " + postId);
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post could not be created");
+        }
+    }
+    @GetMapping()
+    public ResponseEntity<List<PostDto>> getAllPosts(HttpSession session) {
+        Long userId = (Long) session.getAttribute("id");
+        List<PostDto>posts =  postService.getAllPublishedPosts(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(posts);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PostDto> getPostById(@PathVariable Long id, HttpSession session) {
+        Long userId = (Long) session.getAttribute("id");
+        Optional<PostDto>post=postService.getPostById(id,userId);
+        if (post.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(post.get());
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+//Дописать
     @PostMapping("/create")
-    public String createPost(@ModelAttribute RequestPostDTO dto, HttpSession session) throws SQLException {
+    public String createPostOld(@ModelAttribute RequestPostDTO dto, HttpSession session) throws SQLException {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) return "redirect:/security/login";
 
-        postService.createPost(dto, userId);
+        postService.createPostOld(dto, userId);
         return "redirect:/posts/feed";
     }
 
-    @GetMapping({ "/feed"})
+    @GetMapping({"/feed"})
     public String getFeed(Model model) throws SQLException {
         try {
             List<PostResponse> posts = postService.getFeed();
