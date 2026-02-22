@@ -42,6 +42,7 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post could not be created");
         }
     }
+
     @GetMapping()
     public ResponseEntity<List<PostDto>> getAllPosts(HttpSession session) {
         Long userId = (Long) session.getAttribute("id");
@@ -57,6 +58,48 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.OK).body(post.get());
         }else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PostMapping("/{id}/like")
+    public ResponseEntity<?> addLike(@PathVariable Long id, HttpSession session) {
+        Long userId = (Long) session.getAttribute("id");
+        if(userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
+        }
+        boolean success = postService.addLike(id, userId);
+        if (success) {
+            return ResponseEntity.status(HttpStatus.OK).body(success);
+        }else  {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
+        }
+    }
+
+    @PostMapping("/{id}/dislike")
+    public ResponseEntity<?> removeLike(@PathVariable Long id, HttpSession session) {
+        Long userId = (Long) session.getAttribute("id");
+        if(userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
+        }
+        boolean success = postService.addDislike(id, userId);
+        if(success){
+            return ResponseEntity.status(HttpStatus.OK).body(success);
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
+        }
+    }
+
+    @PostMapping("/{id}/reaction")
+    public ResponseEntity<?> removeReaction(@PathVariable Long id, HttpSession session) {
+        Long userId = (Long) session.getAttribute("id");
+        if(userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
+        }
+        boolean success = postService.removeReaction(id, userId);
+        if (success) {
+            return ResponseEntity.status(HttpStatus.OK).body(success);
+        }else  {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
 //Дописать
