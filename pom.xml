@@ -87,11 +87,8 @@
             <version>3.0.1</version>
         </dependency>
         <!--21.02-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
-        </dependency>
-        <!--22.02-->
+       <!--starter JDBC >
+        <!-22.02-->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
