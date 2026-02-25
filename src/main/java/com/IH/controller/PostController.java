@@ -5,6 +5,11 @@ import com.IH.model.dto.RequestPostDTO;
 import com.IH.model.dto.rest.CreatePostRequest;
 import com.IH.model.dto.rest.PostDto;
 import com.IH.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -21,7 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
-@Tag(name ="Posts", description = "API for creating posts")
+@Tag(name = "Posts", description = "Managing posts: creating, viewing, liking")
 public class PostController {
 
     private final PostService postService;
@@ -31,102 +36,122 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/create")
+    @PostMapping()
+    @Operation(summary = "Create Post"
+            , description = "Creates a post and submits it for moderation. Authorization required.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200"
+                    , description = "The post has been successfully created and sent for moderation."),
+            @ApiResponse(responseCode = "401"
+                    , description = "The user is not authorized"),
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
     public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest postRequest, HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not logged in");
         }
-        Optional<Long>postId = postService.createPost(postRequest, userId);
+        Optional<Long> postId = postService.createPost(postRequest, userId);
         if (postId.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body("Post created, id: " + postId);
-        }else{
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post could not be created");
         }
     }
 
     @GetMapping()
+    @Operation(summary = "Get all published posts",
+            description = "Returns a list of posts with the APPROVED status. " +
+                    "For authorized users, it also shows whether the user has liked or disliked the post.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The list of posts has been successfully retrieved.")
+    })
     public ResponseEntity<List<PostDto>> getAllPosts(HttpSession session) {
         Long userId = (Long) session.getAttribute("id");
-        List<PostDto>posts =  postService.getAllPublishedPosts(userId);
+        List<PostDto> posts = postService.getAllPublishedPosts(userId);
         return ResponseEntity.status(HttpStatus.OK).body(posts);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Find post by id"
+            , description = "Returns detailed information about a specific post.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Post found"),
+            @ApiResponse(responseCode = "404", description = "Post not found")
+    })
     public ResponseEntity<PostDto> getPostById(@PathVariable Long id, HttpSession session) {
         Long userId = (Long) session.getAttribute("id");
-        Optional<PostDto>post=postService.getPostById(id,userId);
+        Optional<PostDto> post = postService.getPostById(id, userId);
         if (post.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(post.get());
-        }else {
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @PostMapping("/{id}/like")
+    @Operation(summary = "Like"
+            , description = "Adds a like to the post. If the user already disliked it,"
+            + " it is replaced with a like")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Like successfully placed"),
+            @ApiResponse(responseCode = "401", description = "Authorization required"),
+            @ApiResponse(responseCode = "400", description = "Error placing like")
+    })
     public ResponseEntity<?> addLike(@PathVariable Long id, HttpSession session) {
         Long userId = (Long) session.getAttribute("id");
-        if(userId == null) {
+        if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.addLike(id, userId);
         if (success) {
             return ResponseEntity.status(HttpStatus.OK).body(success);
-        }else  {
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
 
     @PostMapping("/{id}/dislike")
+    @Operation(summary = "Dislike"
+            , description = "Adds a Dislike to the post. If the user already liked it,"
+            + " it is replaced with a Dislike")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dislike successfully placed"),
+            @ApiResponse(responseCode = "401", description = "Authorization required"),
+            @ApiResponse(responseCode = "400", description = "Error placing like")
+    })
     public ResponseEntity<?> removeLike(@PathVariable Long id, HttpSession session) {
         Long userId = (Long) session.getAttribute("id");
-        if(userId == null) {
+        if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.addDislike(id, userId);
-        if(success){
+        if (success) {
             return ResponseEntity.status(HttpStatus.OK).body(success);
-        }else {
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
 
     @PostMapping("/{id}/reaction")
+    @Operation(summary = "Deleted reaction", description = "Removes a user's like or dislike from a post.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "reaction deleted"),
+            @ApiResponse(responseCode = "401", description = "Authorization required"),
+            @ApiResponse(responseCode = "400", description = "No reaction found to remove")
+    })
     public ResponseEntity<?> removeReaction(@PathVariable Long id, HttpSession session) {
         Long userId = (Long) session.getAttribute("id");
-        if(userId == null) {
+        if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.removeReaction(id, userId);
         if (success) {
             return ResponseEntity.status(HttpStatus.OK).body(success);
-        }else  {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);//проверить, может 404
         }
     }
-//Дописать
-    @PostMapping("/create")
-    public String createPostOld(@ModelAttribute RequestPostDTO dto, HttpSession session) throws SQLException {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return "redirect:/security/login";
 
-        postService.createPostOld(dto, userId);
-        return "redirect:/posts/feed";
-    }
-
-    @GetMapping({"/feed"})
-    public String getFeed(Model model) throws SQLException {
-        try {
-            List<PostResponse> posts = postService.getFeed();
-            model.addAttribute("postsList", posts);
-            for (PostResponse post : posts) {
-                System.out.println(post.getPostTitle());
-                System.out.println(post.getText());
-            }
-            return "/feed";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
-        }
-    }
+    //Дописать
 }
