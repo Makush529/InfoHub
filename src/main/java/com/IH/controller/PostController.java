@@ -5,6 +5,7 @@ import com.IH.model.dto.RequestPostDTO;
 import com.IH.model.dto.rest.CreatePostRequest;
 import com.IH.model.dto.rest.PostDto;
 import com.IH.service.PostService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
+@Tag(name ="Posts", description = "API for creating posts")
 public class PostController {
 
     private final PostService postService;

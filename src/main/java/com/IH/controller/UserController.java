@@ -2,6 +2,7 @@ package com.IH.controller;
 
 import com.IH.model.User;
 import com.IH.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
+@Tag(name = "User", description = "API for user management")
 public class UserController {
     private UserService userService;
 

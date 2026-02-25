@@ -4,6 +4,7 @@ import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.RequestRegistrationDTO;
 import com.IH.service.SecurityService;
 import com.IH.model.dto.UserResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

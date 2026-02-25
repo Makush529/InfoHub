@@ -7,11 +7,8 @@ import com.IH.model.dto.rest.PostDto;
 import com.IH.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +57,6 @@ public class PostService {
         }
     }
 
-    @Transactional
     public boolean addLike(Long postId, Long userId) {
         try {
             postRepository.removeLike(postId, userId);
@@ -72,7 +68,6 @@ public class PostService {
         }
     }
 
-    @Transactional
     public boolean addDislike(Long postId, Long userId) {
         try {
             postRepository.removeLike(postId, userId);
@@ -84,8 +79,7 @@ public class PostService {
         }
     }
 
-    @Transactional
-    public boolean removeReaction(Long postId, Long userId){
+    public boolean removeReaction(Long postId, Long userId) {
         try {
             boolean removeLike = postRepository.removeLike(postId, userId);
             boolean removeDislike = postRepository.removeDislike(postId, userId);
