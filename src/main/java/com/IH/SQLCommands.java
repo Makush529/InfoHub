@@ -13,7 +13,7 @@ public interface SQLCommands {
                     "INSERT INTO public.security (login, password, user_id) " +
                     "VALUES (?, ?, (SELECT id FROM inserted_user))";
     String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";//поиск через юзер(старый)
-    String GET_USER_BY_ID_FULL =//поиск через authcontroller
+    String GET_USER_BY_ID_FULL =//поиск через authController
             "SELECT u.id, u.username, u.user_age, s.login " +//добавить рейтинги и роль
                     "FROM users u JOIN security s ON u.id = s.user_id " +
                     "WHERE u.id = ?";

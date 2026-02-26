@@ -1,12 +1,11 @@
 package com.IH.service;
 
 
-import com.IH.model.User;
+import com.IH.model.dto.rest.UserDto;
 import com.IH.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 @Service
@@ -15,14 +14,11 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<User> getUserById(int id) {
-        System.out.println("Ищу в базе ID: " + id);
+    public Optional<UserDto> getUserById(long id) {
         try {
-            Optional<User> user = userRepository.getUserById(id);
-            System.out.println("Нашел пользователя? " + user.isPresent());
+            Optional<UserDto> user = userRepository.getUserById(id);
             return user;
         } catch (Exception e) {
-            System.err.println("ОШИБКА В СЕРВИСЕ: " + e.getMessage());
             e.printStackTrace();
             return Optional.empty();
         }

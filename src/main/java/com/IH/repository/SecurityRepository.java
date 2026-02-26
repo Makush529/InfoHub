@@ -2,7 +2,6 @@ package com.IH.repository;
 
 
 import com.IH.SQLCommands;
-import com.IH.model.User;
 import com.IH.model.dto.UserResponse;
 import com.IH.model.dto.rest.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
