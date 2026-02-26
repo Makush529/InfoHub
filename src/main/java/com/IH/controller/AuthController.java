@@ -15,6 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +29,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authorization", description = "API for registration, login, and session management")
 public class AuthController {
+    Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private SecurityService securityService;
@@ -48,6 +53,7 @@ public class AuthController {
                     , content = @Content)
     })
     public ResponseEntity<UserDto> register(@Valid @RequestBody RegisterRequest request) {
+        logger.info("IN:");
         try {
             RequestRegistrationDTO oldDTO = new RequestRegistrationDTO();
             oldDTO.setLogin(request.getLogin());
@@ -61,6 +67,7 @@ public class AuthController {
             userDto.setId(userResponse.getId());
             userDto.setLogin(userResponse.getLogin());
             userDto.setUsername(userResponse.getUsername());
+            logger.info("OUT: " + userResponse.toString());
             return ResponseEntity.ok(userDto);//проверить 200/203!!!!
         } catch (SQLException e) {
             System.err.println("!!! SQL ОШИБКА !!!");
@@ -78,6 +85,7 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
     }
+
 
     @PostMapping("/login")
     @Operation(summary = "login in the system", description = "User authentication using login and password.")

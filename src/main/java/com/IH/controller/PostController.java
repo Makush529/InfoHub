@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/posts")
 @Tag(name = "Posts", description = "Managing posts: creating, viewing, liking")
@@ -47,14 +49,18 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Validation error")
     })
     public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest postRequest, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        log.info("IN:" + postRequest.getTitle());
+        Long userId = (Long) session.getAttribute("id");
         if (userId == null) {
+            log.warn("UNAUTHORIZED");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not logged in");
         }
         Optional<Long> postId = postService.createPost(postRequest, userId);
         if (postId.isPresent()) {
+            log.info("Post has been successfully created and sent for moderation.");
             return ResponseEntity.status(HttpStatus.OK).body("Post created, id: " + postId);
         } else {
+            log.warn("Post could not be created");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post could not be created");
         }
     }
