@@ -49,18 +49,18 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Validation error")
     })
     public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest postRequest, HttpSession session) {
-        log.info("IN:" + postRequest.getTitle());
+        log.debug(">> post title {} ", postRequest.getTitle());
         Long userId = (Long) session.getAttribute("id");
         if (userId == null) {
-            log.warn("UNAUTHORIZED");
+            log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not logged in");
         }
         Optional<Long> postId = postService.createPost(postRequest, userId);
         if (postId.isPresent()) {
-            log.info("Post has been successfully created and sent for moderation.");
+            log.debug("<<OK:Post has been successfully created and sent for moderation.");
             return ResponseEntity.status(HttpStatus.OK).body("Post created, id: " + postId);
         } else {
-            log.warn("Post could not be created");
+            log.warn("<<BAD_REQUEST: Post could not be created");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post could not be created");
         }
     }
@@ -73,8 +73,10 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "The list of posts has been successfully retrieved.")
     })
     public ResponseEntity<List<PostDto>> getAllPosts(HttpSession session) {
+        log.debug(">> GetAllPosts, user id = {}", session.getAttribute("id"));
         Long userId = (Long) session.getAttribute("id");
         List<PostDto> posts = postService.getAllPublishedPosts(userId);
+        log.debug("<<OK: Posts retrieved successfully, {}", posts.size());
         return ResponseEntity.status(HttpStatus.OK).body(posts);
     }
 
@@ -86,11 +88,14 @@ public class PostController {
             @ApiResponse(responseCode = "404", description = "Post not found")
     })
     public ResponseEntity<PostDto> getPostById(@PathVariable Long id, HttpSession session) {
+        log.debug(">> GetPostById, post id = {}", id);
         Long userId = (Long) session.getAttribute("id");
         Optional<PostDto> post = postService.getPostById(id, userId);
         if (post.isPresent()) {
+            log.debug("<<OK: Post has been successfully retrieved.");
             return ResponseEntity.status(HttpStatus.OK).body(post.get());
         } else {
+            log.warn("<<NOT_FOUND: Post could not be retrieved.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
@@ -105,14 +110,18 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Error placing like")
     })
     public ResponseEntity<?> addLike(@PathVariable Long id, HttpSession session) {
+        log.debug(">> addLike, post id = {}", id);
         Long userId = (Long) session.getAttribute("id");
         if (userId == null) {
+            log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.addLike(id, userId);
         if (success) {
+            log.debug("<<OK: Post has been successfully liked.");
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
+            log.warn("<<BAD_REQUEST: Post could not be liked.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
@@ -127,14 +136,18 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Error placing like")
     })
     public ResponseEntity<?> removeLike(@PathVariable Long id, HttpSession session) {
+        log.debug(">> add dislike, post id = {}", id);
         Long userId = (Long) session.getAttribute("id");
         if (userId == null) {
+            log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.addDislike(id, userId);
         if (success) {
+            log.debug("<<OK: Dislike successfully placed");
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
+            log.warn("<<BAD_REQUEST: Post could not be liked.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
@@ -147,17 +160,20 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "No reaction found to remove")
     })
     public ResponseEntity<?> removeReaction(@PathVariable Long id, HttpSession session) {
+        log.debug(">> removeReaction, post id = {}", id);
         Long userId = (Long) session.getAttribute("id");
         if (userId == null) {
+            log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.removeReaction(id, userId);
         if (success) {
+            log.debug("<<OK: Reaction has been successfully removed.");
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
+            log.warn("<<BAD_REQUEST: Reaction could not be removed.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);//проверить, может 404
         }
     }
-
     //Дописать
 }

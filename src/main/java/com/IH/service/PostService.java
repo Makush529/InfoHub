@@ -59,7 +59,10 @@ public class PostService {
 
     public boolean addLike(Long postId, Long userId) {
         try {
-            postRepository.removeLike(postId, userId);
+            postRepository.removeDislike(postId, userId);
+            if (postRepository.checkUserLike(postId, userId)) {
+                return false;
+            }
             return postRepository.addLike(postId, userId);
         } catch (SQLException e) {
             System.out.println("SQLException add like: " + e.getMessage());
@@ -71,6 +74,9 @@ public class PostService {
     public boolean addDislike(Long postId, Long userId) {
         try {
             postRepository.removeLike(postId, userId);
+            if (postRepository.checkUserDilLike(postId, userId)) {
+                return false;
+            }
             return postRepository.addDislike(postId, userId);
         } catch (SQLException e) {
             System.out.println("SQLException add disLike: " + e.getMessage());

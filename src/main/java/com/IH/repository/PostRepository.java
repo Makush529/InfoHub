@@ -2,6 +2,7 @@ package com.IH.repository;
 
 import com.IH.model.dto.PostResponse;
 import com.IH.model.dto.rest.PostDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
