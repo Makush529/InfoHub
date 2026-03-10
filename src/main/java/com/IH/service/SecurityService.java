@@ -1,8 +1,8 @@
 package com.IH.service;
 
 import com.IH.model.dto.RequestLoginDTO;
-import com.IH.model.dto.RequestRegistrationDTO;
 import com.IH.model.dto.UserResponse;
+import com.IH.model.dto.rest.RegisterRequest;
 import com.IH.model.dto.rest.UserDto;
 import com.IH.repository.SecurityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +21,17 @@ public class SecurityService {
         this.securityRepository = securityRepository;
     }
 
-    public UserResponse registration(RequestRegistrationDTO requestRegistrationDTO) throws SQLException {
+    public UserResponse registration(RegisterRequest request) throws SQLException {
         securityRepository.registerUser(
-                requestRegistrationDTO.getLogin(),
-                requestRegistrationDTO.getPassword(),
-                requestRegistrationDTO.getUsername(),
-                requestRegistrationDTO.getBirthDate()
+                request.getLogin(),
+                request.getPassword(),
+                request.getUsername(),
+                request.getBirthDate()
         );
 
         UserResponse userResponse = new UserResponse();
-        userResponse.setLogin(requestRegistrationDTO.getLogin());
-        userResponse.setUsername(requestRegistrationDTO.getUsername());
+        userResponse.setLogin(request.getLogin());
+        userResponse.setUsername(request.getUsername());
 
         return userResponse;
     }

@@ -1,7 +1,6 @@
 package com.IH.controller;
 
 import com.IH.model.dto.RequestLoginDTO;
-import com.IH.model.dto.RequestRegistrationDTO;
 import com.IH.model.dto.UserResponse;
 import com.IH.model.dto.rest.LoginRequest;
 import com.IH.model.dto.rest.RegisterRequest;
@@ -21,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -53,21 +51,15 @@ public class AuthController {
                     , content = @Content)
     })
     public ResponseEntity<UserDto> register(@Valid @RequestBody RegisterRequest request) {
-        logger.info("IN:");
+        logger.info(">>:" + request.getLogin());
         try {
-            RequestRegistrationDTO oldDTO = new RequestRegistrationDTO();
-            oldDTO.setLogin(request.getLogin());
-            oldDTO.setPassword(request.getPassword());
-            oldDTO.setUsername(request.getUsername());
-            oldDTO.setBirthDate(request.getBirthDate());
-
-            UserResponse userResponse = securityService.registration(oldDTO);
+            UserResponse userResponse = securityService.registration(request);
             UserDto userDto = new UserDto();
 
             userDto.setId(userResponse.getId());
             userDto.setLogin(userResponse.getLogin());
             userDto.setUsername(userResponse.getUsername());
-            logger.info("OUT: " + userResponse.toString());
+            logger.info("<<: " + userResponse.toString());
             return ResponseEntity.ok(userDto);//проверить 200/203!!!!
         } catch (SQLException e) {
             System.err.println("!!! SQL ОШИБКА !!!");
