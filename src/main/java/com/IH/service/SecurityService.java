@@ -1,7 +1,7 @@
 package com.IH.service;
 
-import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.UserResponse;
+import com.IH.model.dto.rest.LoginRequest;
 import com.IH.model.dto.rest.RegisterRequest;
 import com.IH.model.dto.rest.UserDto;
 import com.IH.repository.SecurityRepository;
@@ -36,7 +36,7 @@ public class SecurityService {
         return userResponse;
     }
 
-    public UserResponse login(RequestLoginDTO loginDTO) throws SQLException {
+    public UserResponse login(LoginRequest loginDTO) throws SQLException {
         return securityRepository.getUserByCredentials(loginDTO.getLogin(), loginDTO.getPassword());
     }
 

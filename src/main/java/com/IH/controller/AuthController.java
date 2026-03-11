@@ -1,6 +1,5 @@
 package com.IH.controller;
 
-import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.UserResponse;
 import com.IH.model.dto.rest.LoginRequest;
 import com.IH.model.dto.rest.RegisterRequest;
@@ -94,11 +93,7 @@ public class AuthController {
     })
     public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest request, HttpSession session) {
         try {
-            RequestLoginDTO oldDTO = new RequestLoginDTO();
-            oldDTO.setLogin(request.getLogin());
-            oldDTO.setPassword(request.getPassword());
-
-            UserResponse userResponse = securityService.login(oldDTO);
+            UserResponse userResponse = securityService.login(request);
 
             if (userResponse != null) {
                 session.setAttribute("username", userResponse.getUsername());
