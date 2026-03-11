@@ -1,6 +1,5 @@
 package com.IH.controller;
 
-import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.UserResponse;
 import com.IH.model.dto.rest.LoginRequest;
 import com.IH.model.dto.rest.RegisterRequest;
@@ -60,7 +59,7 @@ public class AuthController {
             userDto.setLogin(userResponse.getLogin());
             userDto.setUsername(userResponse.getUsername());
             logger.info("<<: " + userResponse.toString());
-            return ResponseEntity.ok(userDto);//проверить 200/203!!!!
+            return ResponseEntity.ok(userDto);//TODO проверить 200/203!!!!
         } catch (SQLException e) {
             System.err.println("!!! SQL ОШИБКА !!!");
             e.printStackTrace();
@@ -94,11 +93,7 @@ public class AuthController {
     })
     public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest request, HttpSession session) {
         try {
-            RequestLoginDTO oldDTO = new RequestLoginDTO();
-            oldDTO.setLogin(request.getLogin());
-            oldDTO.setPassword(request.getPassword());
-
-            UserResponse userResponse = securityService.login(oldDTO);
+            UserResponse userResponse = securityService.login(request);
 
             if (userResponse != null) {
                 session.setAttribute("username", userResponse.getUsername());
@@ -108,7 +103,7 @@ public class AuthController {
                 userDto.setId(userResponse.getId());
                 userDto.setLogin(userResponse.getLogin());
                 userDto.setUsername(userResponse.getUsername());
-                return ResponseEntity.ok(userDto);//проверить 200/201!!!
+                return ResponseEntity.ok(userDto);//TODO проверить 200/201!!!
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }

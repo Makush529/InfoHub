@@ -1,13 +1,9 @@
 package com.IH.controller;
 
-import com.IH.model.dto.PostResponse;
-import com.IH.model.dto.RequestPostDTO;
 import com.IH.model.dto.rest.CreatePostRequest;
 import com.IH.model.dto.rest.PostDto;
 import com.IH.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,11 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
