@@ -31,7 +31,7 @@ public class RegisterRequest {
             requiredMode = Schema.RequiredMode.REQUIRED,
             minLength = 2, maxLength = 15)
     @NotBlank
-    @Size(min = 2, max = 15)
+    @Size(min = 2, max = 15, message = "Username must be between 2 and 15 characters")
     String username;
     @Schema(description = "Birthday",
             example = "1995-05-05",

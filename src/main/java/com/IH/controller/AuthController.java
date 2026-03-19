@@ -61,14 +61,14 @@ public class AuthController {
             logger.info("<<: " + userResponse.toString());
             return ResponseEntity.ok(userDto);//TODO проверить 200/203!!!!
         } catch (SQLException e) {
-            System.err.println("!!! SQL ОШИБКА !!!");
+            System.err.println("!!! SQL ОШИБКА !!!");//TODO
             e.printStackTrace();
 
             Map<String, String> error = new HashMap<>();
             error.put("error", "Database error: " + e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            System.err.println("!!! НЕИЗВЕСТНАЯ ОШИБКА !!!");
+            System.err.println("!!! НЕИЗВЕСТНАЯ ОШИБКА !!!");//TODO
             e.printStackTrace();
 
             Map<String, String> error = new HashMap<>();
@@ -76,7 +76,6 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
     }
-
 
     @PostMapping("/login")
     @Operation(summary = "login in the system", description = "User authentication using login and password.")
