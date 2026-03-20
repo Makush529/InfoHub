@@ -1,10 +1,11 @@
 package com.IH.service;
 
-import com.IH.model.dto.RequestLoginDTO;
 import com.IH.model.dto.UserResponse;
+import com.IH.model.dto.rest.LoginRequest;
 import com.IH.model.dto.rest.RegisterRequest;
 import com.IH.model.dto.rest.UserDto;
 import com.IH.repository.SecurityRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class SecurityService {
         return userResponse;
     }
 
-    public UserResponse login(RequestLoginDTO loginDTO) throws SQLException {
+    public UserResponse login(@Valid LoginRequest loginDTO) throws SQLException {
         return securityRepository.getUserByCredentials(loginDTO.getLogin(), loginDTO.getPassword());
     }
 

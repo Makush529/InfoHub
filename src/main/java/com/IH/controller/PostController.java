@@ -51,7 +51,7 @@ public class PostController {
         Optional<Long> postId = postService.createPost(postRequest, userId);
         if (postId.isPresent()) {
             log.debug("<<OK:Post has been successfully created and sent for moderation.");
-            return ResponseEntity.status(HttpStatus.OK).body("Post created, id: " + postId);
+            return ResponseEntity.status(HttpStatus.OK).body("Post created, id: " + postId.get());
         } else {
             log.warn("<<BAD_REQUEST: Post could not be created");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post could not be created");

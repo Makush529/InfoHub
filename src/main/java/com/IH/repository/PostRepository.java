@@ -1,6 +1,7 @@
 package com.IH.repository;
 
 import com.IH.model.dto.PostResponse;
+import com.IH.model.dto.PostStatus;
 import com.IH.model.dto.rest.PostDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,12 @@ public class PostRepository {
         this.connection = connection;
     }
 
-    public Long createPost(String title, String content, Long user_id) throws SQLException {
+    public Long createPost(String title, String content, Long user_id, PostStatus status) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(CREATE_POST, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, title);
             statement.setString(2, content);
             statement.setLong(3, user_id);
+            statement.setString(4,status.name());
             statement.executeUpdate();
 
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
@@ -162,7 +164,7 @@ public class PostRepository {
         post.setTitle(resultSet.getString("post_title"));
         post.setContent(resultSet.getString("text"));
         post.setCreatedAt(resultSet.getDate("post_age").toLocalDate());
-        post.setStatus(resultSet.getString("status"));
+        post.setStatus(PostStatus.valueOf(resultSet.getString("status")));//TODO проверить
         post.setAuthorId(resultSet.getLong("author_id"));
         post.setAuthorName(resultSet.getString("author_name"));
         post.setLikesCount(resultSet.getInt("likes_count"));

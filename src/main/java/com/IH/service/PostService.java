@@ -1,6 +1,7 @@
 package com.IH.service;
 
 import com.IH.model.dto.PostResponse;
+import com.IH.model.dto.PostStatus;
 import com.IH.model.dto.RequestPostDTO;
 import com.IH.model.dto.rest.CreatePostRequest;
 import com.IH.model.dto.rest.PostDto;
@@ -28,7 +29,8 @@ public class PostService {
             Long postId = postRepository.createPost(
                     request.getTitle(),
                     request.getContent(),
-                    userId);
+                    userId,
+                    PostStatus.PENDING);
             return Optional.ofNullable(postId);
         } catch (SQLException e) {
             System.out.println("SQLException in DB: " + e.getMessage());

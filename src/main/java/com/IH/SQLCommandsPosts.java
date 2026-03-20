@@ -3,7 +3,7 @@ package com.IH;
 public interface SQLCommandsPosts {
     String CREATE_POST =
             "INSERT INTO posts (post_title, text, post_age, user_id, status) " +
-                    "VALUES (?, ?, CURRENT_DATE, ?, 'PENDING')";
+                    "VALUES (?, ?, CURRENT_DATE, ?, ?)";
     String GET_ALL_PUBLISHED_POSTS =
             "SELECT p.id, p.post_title, p.text, p.post_age, p.status, " +
                     "       u.id as author_id, u.username as author_name, " +

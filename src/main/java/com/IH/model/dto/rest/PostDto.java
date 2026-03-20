@@ -1,5 +1,6 @@
 package com.IH.model.dto.rest;
 
+import com.IH.model.dto.PostStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ public class PostDto {
     private int likesCount;
     private int dislikesCount;
     private int rating; // likes - dislikes
-    private String status; // PENDING, APPROVED, REJECTED
+    private PostStatus status; // PENDING, APPROVED, REJECTED
     private List<String> tags;
     private boolean userLiked; // для текущего пользователя
     private boolean userDisliked; // для текущего пользователя
