@@ -150,7 +150,7 @@ public class PostRepository {
                 if (dbDate != null) {
                     post.setPostAge(dbDate.toLocalDate());
                 } else {
-                    post.setPostAge(null); // или LocalDate.now(), если хочешь дату по умолчанию
+                    post.setPostAge(null); //TODO подумать, или LocalDate.now()
                 }
                 posts.add(post);
             }
@@ -164,7 +164,7 @@ public class PostRepository {
         post.setTitle(resultSet.getString("post_title"));
         post.setContent(resultSet.getString("text"));
         post.setCreatedAt(resultSet.getDate("post_age").toLocalDate());
-        post.setStatus(PostStatus.valueOf(resultSet.getString("status")));//TODO проверить
+        post.setStatus(PostStatus.valueOf(resultSet.getString("status")));//TODO что то проверить, не помню что
         post.setAuthorId(resultSet.getLong("author_id"));
         post.setAuthorName(resultSet.getString("author_name"));
         post.setLikesCount(resultSet.getInt("likes_count"));

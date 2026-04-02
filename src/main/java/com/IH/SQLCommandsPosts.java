@@ -25,7 +25,7 @@ public interface SQLCommandsPosts {
                     "LEFT JOIN (SELECT post_id, COUNT(*) as likes FROM user_likes GROUP BY post_id) ul ON p.id = ul.post_id " +
                     "LEFT JOIN (SELECT post_id, COUNT(*) as dislikes FROM user_dislikes GROUP BY post_id) ud ON p.id = ud.post_id " +
                     "WHERE p.id = ?";
-    String GET_ALL_POSTS =//устаревший!!!!!!!!!!!!
+    String GET_ALL_POSTS =//TODO устаревший!!!!!!!!!!!!
             "SELECT posts.id, posts.post_title, posts.text, posts.post_age, users.username " +
                     "FROM posts JOIN users ON posts.user_id = users.id " +
                     "ORDER BY posts.id DESC";

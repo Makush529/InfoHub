@@ -1,5 +1,6 @@
 package com.IH.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -9,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+@Slf4j
 @Configuration
 @ComponentScan("com.IH")
 public class SpringConfig {
@@ -31,6 +33,7 @@ public class SpringConfig {
     @Bean
     public Connection getConnection() {
         try {
+            //TODO доделать логи вместо SOT
             System.out.println("Попытка подключения к: " + dbURL + " под пользователем: " + dbName);
             return DriverManager.getConnection(dbURL, dbName, dbPassword);
         } catch (SQLException e) {
