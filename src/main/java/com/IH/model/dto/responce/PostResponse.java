@@ -1,4 +1,4 @@
-package com.IH.model.dto;
+package com.IH.model.dto.responce;
 
 import lombok.Data;
 

@@ -1,9 +1,9 @@
 package com.IH.controller;
 
-import com.IH.model.dto.UserResponse;
-import com.IH.model.dto.rest.LoginRequest;
-import com.IH.model.dto.rest.RegisterRequest;
-import com.IH.model.dto.rest.UserDto;
+import com.IH.model.dto.responce.UserResponse;
+import com.IH.model.dto.request.LoginRequest;
+import com.IH.model.dto.request.RegisterRequest;
+import com.IH.model.dto.responce.UserDto;
 import com.IH.service.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,7 +1,7 @@
 package com.IH.service;
 
 
-import com.IH.model.dto.rest.UserDto;
+import com.IH.model.dto.responce.UserDto;
 import com.IH.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

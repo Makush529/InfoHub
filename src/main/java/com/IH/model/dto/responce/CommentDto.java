@@ -1,10 +1,9 @@
-package com.IH.model.dto.rest;
+package com.IH.model.dto.responce;
 
 import com.IH.model.dto.CommentStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class CommentDto {

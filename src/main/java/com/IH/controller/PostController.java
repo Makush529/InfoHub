@@ -1,7 +1,7 @@
 package com.IH.controller;
 
-import com.IH.model.dto.rest.CreatePostRequest;
-import com.IH.model.dto.rest.PostDto;
+import com.IH.model.dto.request.CreatePostRequest;
+import com.IH.model.dto.responce.PostDto;
 import com.IH.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

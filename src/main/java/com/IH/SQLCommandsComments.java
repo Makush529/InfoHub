@@ -7,9 +7,9 @@ public interface SQLCommandsComments {
 
     String GET_COMMENT_BY_POST =
             "SELECT  c.id, c.content, c.comment_date, c.status, " +
-                    "u.id as author_id, u.name as author_name, " +
+                    "u.id as author_id, u.name as author_name " +
                     "FROM comments c " +
-                    "JOIN users u c.user_id = u.id " +
+                    "JOIN users u ON c.user_id = u.id " +
                     "WHERE c.post_id = ? AND c.status = 'APPROVED' " +
                     "ORDER BY c.comment_date DESC";
 

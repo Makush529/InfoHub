@@ -2,9 +2,9 @@ package com.IH.repository;
 
 
 import com.IH.SQLCommands;
-import com.IH.model.dto.UserResponse;
+import com.IH.model.dto.responce.UserResponse;
 import com.IH.model.dto.UserRole;
-import com.IH.model.dto.rest.UserDto;
+import com.IH.model.dto.responce.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

@@ -1,10 +1,9 @@
 package com.IH.service;
 
-import com.IH.model.dto.PostResponse;
+import com.IH.model.dto.responce.PostResponse;
 import com.IH.model.dto.PostStatus;
-import com.IH.model.dto.RequestPostDTO;
-import com.IH.model.dto.rest.CreatePostRequest;
-import com.IH.model.dto.rest.PostDto;
+import com.IH.model.dto.request.CreatePostRequest;
+import com.IH.model.dto.responce.PostDto;
 import com.IH.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class PostService {
                     PostStatus.PENDING);
             return Optional.ofNullable(postId);
         } catch (SQLException e) {
-            System.out.println("SQLException in DB: " + e.getMessage());
+            System.out.println("SQLException in DB: " + e.getMessage());//TODO log
             e.printStackTrace();
             return Optional.empty();
         }
@@ -43,7 +42,7 @@ public class PostService {
         try {
             return postRepository.getAllPublishedPosts(userId);
         } catch (SQLException e) {
-            System.out.println("SQLException in DB: " + e.getMessage());
+            System.out.println("SQLException in DB: " + e.getMessage());//TODO log
             e.printStackTrace();
             return List.of();
         }
@@ -53,7 +52,7 @@ public class PostService {
         try {
             return postRepository.getPostById(postId, userId);
         } catch (SQLException e) {
-            System.out.println("SQLException in DB: " + e.getMessage());
+            System.out.println("SQLException in DB: " + e.getMessage());//TODO log
             e.printStackTrace();
             return Optional.empty();
         }
@@ -67,7 +66,7 @@ public class PostService {
             }
             return postRepository.addLike(postId, userId);
         } catch (SQLException e) {
-            System.out.println("SQLException add like: " + e.getMessage());
+            System.out.println("SQLException add like: " + e.getMessage());//TODO log
             e.printStackTrace();
             return false;
         }
@@ -81,7 +80,7 @@ public class PostService {
             }
             return postRepository.addDislike(postId, userId);
         } catch (SQLException e) {
-            System.out.println("SQLException add disLike: " + e.getMessage());
+            System.out.println("SQLException add disLike: " + e.getMessage());//TODO log
             e.printStackTrace();
             return false;
         }
@@ -93,15 +92,10 @@ public class PostService {
             boolean removeDislike = postRepository.removeDislike(postId, userId);
             return removeLike || removeDislike;
         } catch (SQLException e) {
-            System.out.println("SQLException removeReaction: " + e.getMessage());
+            System.out.println("SQLException removeReaction: " + e.getMessage());//TODO log
             e.printStackTrace();
             return false;
         }
-    }
-
-    public void createPostOld(RequestPostDTO dto, Long userId) throws SQLException {
-        //проверка текста на мат или запрещенку
-        postRepository.savePost(dto.getPostTitle(), dto.getText(), userId);
     }
 
     public List<PostResponse> getFeed() throws SQLException {

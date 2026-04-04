@@ -1,6 +1,6 @@
 package com.IH.controller;
 
-import com.IH.model.dto.rest.CreateCommentRequest;
+import com.IH.model.dto.request.CreateCommentRequest;
 import com.IH.service.CommentService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 @Slf4j
@@ -27,7 +28,7 @@ public class CommentController {
     }
     @PostMapping
     public ResponseEntity<?> createComment(@Valid @RequestBody CreateCommentRequest request,
-                                           HttpSession session) {
+                                           HttpSession session) throws SQLException {
         Long userId = (Long) session.getAttribute("id");
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

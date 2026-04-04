@@ -1,6 +1,6 @@
 package com.IH.controller;
 
-import com.IH.model.dto.rest.UserDto;
+import com.IH.model.dto.responce.UserDto;
 import com.IH.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,4 +1,4 @@
-package com.IH.model.dto.rest;
+package com.IH.model.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
