@@ -36,7 +36,7 @@ public class CommentRepository {
         throw new SQLException("Failed to create comment, no ID returned");//TODO доделать исключения
     }
 
-    public List<CommentDto> getCommentByPost(Long postId/*, Long currentUserId*/) throws SQLException {
+    public List<CommentDto> getCommentByPost(Long postId, Long currentUserId) throws SQLException {
         List<CommentDto> comments = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(SQLCommandsComments.GET_COMMENT_BY_POST)) {
@@ -44,7 +44,7 @@ public class CommentRepository {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    comments.add(new CommentDto());//TODO mapRsultSet in()
+                    comments.add(mapResultSetToCommentDto(rs, currentUserId));
                 }
             }
         }

@@ -38,9 +38,9 @@ public class CommentService {
         }
     }
 
-    public List<CommentDto> getCommentsByPost(Long postId) {
+    public List<CommentDto> getCommentsByPost(Long postId, Long userId){
         try {
-            return commentRepository.getCommentByPost(postId);
+            return commentRepository.getCommentByPost(postId, userId);
         } catch (SQLException e) {
             log.error("Error getting comments for post: {}", postId, e);
             return List.of();

@@ -32,3 +32,6 @@ alter table security
 alter column password type char(20) using password::char(20);
 
 ALTER TABLE posts ADD COLUMN status VARCHAR(20) DEFAULT 'PENDING';
+
+ALTER TABLE public.comments
+    ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDING';
