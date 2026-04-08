@@ -35,3 +35,7 @@ ALTER TABLE posts ADD COLUMN status VARCHAR(20) DEFAULT 'PENDING';
 
 ALTER TABLE public.comments
     ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDING';
+
+ALTER TABLE tags ADD CONSTRAINT tags_tag_name_unique UNIQUE (tag_name);
+ALTER TABLE post_tags ADD CONSTRAINT unique_post_tag UNIQUE (post_id, tag_id);
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_tags_name ON tags(tag_name);

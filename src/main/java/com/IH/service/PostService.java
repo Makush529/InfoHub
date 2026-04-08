@@ -5,6 +5,8 @@ import com.IH.model.dto.PostStatus;
 import com.IH.model.dto.request.CreatePostRequest;
 import com.IH.model.dto.responce.PostDto;
 import com.IH.repository.PostRepository;
+import com.IH.repository.TagRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +14,17 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class PostService {
 
-    @Autowired
-    private PostRepository postRepository;
+    private final TagRepository tagRepository;
+    private final PostRepository postRepository;
 
-    public PostService(PostRepository postRepository) {
+    @Autowired
+    public PostService(PostRepository postRepository, TagRepository tagRepository) {
         this.postRepository = postRepository;
+        this.tagRepository = tagRepository;
 
     }
 
@@ -30,6 +35,11 @@ public class PostService {
                     request.getContent(),
                     userId,
                     PostStatus.PENDING);
+
+            if (postId != null && request.getTags() != null && !request.getTags().isEmpty()) {
+                addTagsToPost(postId, request.getTags());
+            }
+
             return Optional.ofNullable(postId);
         } catch (SQLException e) {
             System.out.println("SQLException in DB: " + e.getMessage());//TODO log
@@ -38,22 +48,48 @@ public class PostService {
         }
     }
 
+    private void addTagsToPost(Long postId, List<String>tags){
+        List<String>uniqueTags= tags.stream()
+                .map(t->t.toLowerCase().trim())
+                .distinct()
+                .limit(5)
+                .toList();
+        for(String tagName:uniqueTags){
+            try{
+                Long tagId = tagRepository.getOrCreateTag(tagName);
+                tagRepository.addTagToPost(postId, tagId);
+                log.debug("Tag '{}' added to post {}", tagName, postId);
+            }catch (SQLException e){
+                log.warn("Failed to add tag '{}' to post {}", tagName, postId, e);
+            }
+        }
+    }
+
     public List<PostDto> getAllPublishedPosts(Long userId) {
         try {
-            return postRepository.getAllPublishedPosts(userId);
+            List<PostDto> posts = postRepository.getAllPublishedPosts(userId);
+            for(PostDto post:posts){
+                List<String> tags = tagRepository.getTagsByPost(post.getId());
+                post.setTags(tags);
+            }
+            return posts;
         } catch (SQLException e) {
-            System.out.println("SQLException in DB: " + e.getMessage());//TODO log
-            e.printStackTrace();
+            log.error("Error getting all published posts", e);
             return List.of();
         }
     }
 
     public Optional<PostDto> getPostById(Long postId, Long userId) {
         try {
-            return postRepository.getPostById(postId, userId);
+            Optional<PostDto> posts = postRepository.getPostById(postId, userId);
+            if(posts.isPresent()){
+                PostDto post = posts.get();
+                List<String> tags = tagRepository.getTagsByPost(postId);
+                post.setTags(tags);
+            }
+            return posts;
         } catch (SQLException e) {
-            System.out.println("SQLException in DB: " + e.getMessage());//TODO log
-            e.printStackTrace();
+            log.error("Error getting post by id = {}", postId, e);
             return Optional.empty();
         }
     }
