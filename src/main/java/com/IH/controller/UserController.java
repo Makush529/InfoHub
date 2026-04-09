@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @Tag(name = "User", description = "API for user management")
 public class UserController {
     private UserService userService;
@@ -41,16 +43,16 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = UserDto.class)))
     })
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        Optional<UserDto> user = userService.getUserById(id);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
+        log.debug(">> getUserById: {}", id);
+        Optional<UserDto> userOpt = userService.getUserById(id);
+        if (userOpt.isPresent()) {
+            UserDto user = userOpt.get();
+            int rating = userService.getUserRating(id);
+            user.setRating(rating);
+            log.debug("<< User found: {}, rating: {}", user.getUsername(), rating);
+            return ResponseEntity.ok(user);
         }
+        log.warn("<< User not found: {}", id);
         return ResponseEntity.notFound().build();
-    }
-    public ResponseEntity<UserDto> getMyProfile(HttpSession session) {
-        UserDto user = (UserDto) session.getAttribute(session.getId());
-
-        System.out.println("getMyProfile");
-        return null;
     }
 }

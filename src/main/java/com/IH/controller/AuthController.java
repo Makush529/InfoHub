@@ -5,6 +5,7 @@ import com.IH.model.dto.request.LoginRequest;
 import com.IH.model.dto.request.RegisterRequest;
 import com.IH.model.dto.responce.UserDto;
 import com.IH.service.SecurityService;
+import com.IH.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,13 +29,15 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @Tag(name = "Authorization", description = "API for registration, login, and session management")
 public class AuthController {
     Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
     @Operation(summary = "registration new user", description = "create new user in the system")
@@ -139,18 +142,24 @@ public class AuthController {
                     , description = "User not found"
                     , content = @Content)
     })
-    public ResponseEntity<UserDto> getCurrentUser(HttpSession session) {
-        Long id = (Long) session.getAttribute("id");
 
+    public ResponseEntity<UserDto> getCurrentUser(HttpSession session) {
+        log.debug(">>about profile");
+        Long id = (Long) session.getAttribute("id");
         if (id == null) {
+            log.warn("<<user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Optional<UserDto> userOpt = securityService.findById(id);
-
         if (userOpt.isPresent()) {
-            return ResponseEntity.ok(userOpt.get());
+            UserDto user =  userOpt.get();
+            int rating = userService.getUserRating(id);
+            user.setRating(rating);
+            log.debug("<<user found: {}", user);
+            return ResponseEntity.ok(user);
         } else {
-            return ResponseEntity.notFound().build();
+            log.warn("<<user not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

@@ -1,8 +1,7 @@
 package com.IH.repository;
 
-import com.IH.SQLCommandsComments;
 import com.IH.model.dto.responce.TagDto;
-import com.IH.service.SQLCommandsTags;
+import com.IH.SQLCommandsTags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -68,7 +67,7 @@ public class TagRepository {
             while (rs.next()) {
                 TagDto tag = new TagDto();
                 tag.setName(rs.getString("tag_name"));
-                tag.setId(rs.getLong("tag_id"));
+                tag.setId(rs.getLong("id"));
                 tag.setPostsCount(rs.getInt("posts_count"));
                 tags.add(tag);
 
@@ -84,7 +83,7 @@ public class TagRepository {
             ps.setString(1, tagName.toLowerCase().trim());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    postIds.add(rs.getLong("post_id"));
+                    postIds.add(rs.getLong("id"));
                 }
             }
         }

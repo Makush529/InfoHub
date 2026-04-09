@@ -37,6 +37,18 @@ public class UserRepository {
         return Optional.empty(); // Если юзер не найден
     }
 
+    public int getUserRating(long id) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(SQLCommands.GET_USER_RATING)) {
+            statement.setLong(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("rating");
+                }
+            }
+        }
+        return 0;
+    }
+
 
 }
 

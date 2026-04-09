@@ -5,6 +5,7 @@ public interface SQLCommands {
             "SELECT users.id, users.username FROM security " +
                     "JOIN users ON security.user_id = users.id " +
                     "WHERE security.login = ? AND security.password = ?";
+
     String REGISTER_USER =
             "WITH inserted_user AS (" +
                     "  INSERT INTO users (username, user_age) " +
@@ -13,12 +14,20 @@ public interface SQLCommands {
                     "INSERT INTO public.security (login, password, user_id) " +
                     "VALUES (?, ?, (SELECT id FROM inserted_user))" +
                     "RETURNING user_id";
+
     String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";//TODO поиск через юзер(старый)
-    String GET_USER_BY_ID_FULL =//поиск через authController
+
+    String GET_USER_BY_ID_FULL =//TODO поиск через authController НЕ ПОМНЮ УЖЕ
             "SELECT u.id, u.username, u.user_age, s.login " +//TODO добавить рейтинги и роль
                     "FROM users u JOIN security s ON u.id = s.user_id " +
                     "WHERE u.id = ?";
     String ADD_USER_ROLE =
             "INSERT INTO user_roles (user_id, role) VALUES (?, ?)";
 
+    String GET_USER_RATING =//TODO рассмотреть вариант хранения рейтинга в бд, запись делать вместе с лайком или дизлайком
+            "SELECT COALESCE(SUM(" +
+                    "(SELECT COUNT(*) FROM user_likes WHERE post_id = p.id) - " +
+                    "(SELECT COUNT(*) FROM user_dislikes WHERE post_id = p.id) " +
+                    "), 0) as rating " +
+                    "FROM posts p WHERE p.user_id = ?";
 }

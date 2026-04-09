@@ -22,7 +22,7 @@ public class LoggingAspect {
         String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
         Object[] args = joinPoint.getArgs();
 
-        System.out.println("\n===== AOP LOG START =====");
+        System.out.println("\n===== AOP LOG START =====");//TODO надо как то убрать в логи!
         System.out.println("Вызван класс: " + className);
         System.out.println("Вызван метод: " + methodName);
         System.out.println("Аргументы: " + Arrays.toString(args));

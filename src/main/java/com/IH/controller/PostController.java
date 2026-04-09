@@ -2,6 +2,8 @@ package com.IH.controller;
 
 import com.IH.model.dto.request.CreatePostRequest;
 import com.IH.model.dto.responce.PostDto;
+import com.IH.model.dto.responce.TagDto;
+import com.IH.repository.TagRepository;
 import com.IH.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,20 +17,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 @Tag(name = "Posts", description = "Managing posts: creating, viewing, liking")
 public class PostController {
 
     private final PostService postService;
+    private final TagRepository tagRepository;
 
     @Autowired
-    public PostController(PostService postService) {
+    public PostController(PostService postService, TagRepository tagRepository) {
         this.postService = postService;
+        this.tagRepository = tagRepository;
     }
 
     @PostMapping()
@@ -165,8 +170,45 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
             log.warn("<<BAD_REQUEST: Reaction could not be removed.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);//проверить, может 404
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);//TODO проверить, может 404
         }
     }
-    //Дописать
+    //TODO Дописать удаление, редактирвание
+
+    //TODO Дописать сваггер
+    @GetMapping("/tags")
+    public ResponseEntity<List<TagDto>> getAllTags() {
+        log.debug(">> get all tags");
+        try{List<TagDto>tags =tagRepository.getAllTags();
+            log.debug("<<tags were sent successfully {}}",tags.size());
+        return ResponseEntity.status(HttpStatus.OK).body(tags);}
+        catch(Exception e){
+            log.error("<<Error getting all tags", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    //TODO доделать сваггер
+    @GetMapping("/tag/{tagName}")
+    public ResponseEntity<List<PostDto>>getPostsByTags(@PathVariable String tagName, HttpSession session) {
+        log.debug(">> get posts by tags {}", tagName);
+        try{
+            Long userId = (session!=null)?(Long) session.getAttribute("id"):null;
+
+            List <Long>postIds = tagRepository.getPostIdsByTagId(tagName);
+
+            List<PostDto>posts=new ArrayList<>();
+            for (Long postId : postIds) {
+                Optional<PostDto>postDtoOptional = postService.getPostById(postId, userId);
+                if (postDtoOptional.isPresent()) {
+                    posts.add(postDtoOptional.get());
+                }
+            }
+            log.debug("<<posts were sent successfully {}}",posts.size());
+            return ResponseEntity.status(HttpStatus.OK).body(posts);
+        }catch (Exception e){
+            log.error("<<Error getting posts by tags", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
