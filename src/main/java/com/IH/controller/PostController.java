@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +47,9 @@ public class PostController {
                     , description = "The user is not authorized"),
             @ApiResponse(responseCode = "400", description = "Validation error")
     })
-    public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest postRequest, HttpSession session) {
+    public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest postRequest, HttpServletRequest request) {
         log.debug(">> post title {} ", postRequest.getTitle());
-        Long userId = (Long) session.getAttribute("id");
+        Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
             log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not logged in");
@@ -70,9 +71,9 @@ public class PostController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The list of posts has been successfully retrieved.")
     })
-    public ResponseEntity<List<PostDto>> getAllPosts(HttpSession session) {
-        log.debug(">> GetAllPosts, user id = {}", session.getAttribute("id"));
-        Long userId = (Long) session.getAttribute("id");
+    public ResponseEntity<List<PostDto>> getAllPosts(HttpServletRequest request) {
+        log.debug(">> GetAllPosts, user id = {}", request.getAttribute("userId"));
+        Long userId = (Long) request.getAttribute("userId");
         List<PostDto> posts = postService.getAllPublishedPosts(userId);
         log.debug("<<OK: Posts retrieved successfully, {}", posts.size());
         return ResponseEntity.status(HttpStatus.OK).body(posts);
@@ -85,9 +86,9 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Post found"),
             @ApiResponse(responseCode = "404", description = "Post not found")
     })
-    public ResponseEntity<PostDto> getPostById(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<PostDto> getPostById(@PathVariable Long id, HttpServletRequest request) {
         log.debug(">> GetPostById, post id = {}", id);
-        Long userId = (Long) session.getAttribute("id");
+        Long userId = (Long) request.getAttribute("userId");
         Optional<PostDto> post = postService.getPostById(id, userId);
         if (post.isPresent()) {
             log.debug("<<OK: Post has been successfully retrieved.");
@@ -107,9 +108,9 @@ public class PostController {
             @ApiResponse(responseCode = "401", description = "Authorization required"),
             @ApiResponse(responseCode = "400", description = "Error placing like")
     })
-    public ResponseEntity<?> addLike(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<?> addLike(@PathVariable Long id, HttpServletRequest request) {
         log.debug(">> addLike, post id = {}", id);
-        Long userId = (Long) session.getAttribute("id");
+        Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
             log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
@@ -133,9 +134,9 @@ public class PostController {
             @ApiResponse(responseCode = "401", description = "Authorization required"),
             @ApiResponse(responseCode = "400", description = "Error placing like")
     })
-    public ResponseEntity<?> removeLike(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<?> removeLike(@PathVariable Long id, HttpServletRequest request) {
         log.debug(">> add dislike, post id = {}", id);
-        Long userId = (Long) session.getAttribute("id");
+        Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
             log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
@@ -157,9 +158,9 @@ public class PostController {
             @ApiResponse(responseCode = "401", description = "Authorization required"),
             @ApiResponse(responseCode = "400", description = "No reaction found to remove")
     })
-    public ResponseEntity<?> removeReaction(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<?> removeReaction(@PathVariable Long id, HttpServletRequest request) {
         log.debug(">> removeReaction, post id = {}", id);
-        Long userId = (Long) session.getAttribute("id");
+        Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
             log.warn("<<UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
@@ -190,10 +191,10 @@ public class PostController {
 
     //TODO доделать сваггер
     @GetMapping("/tag/{tagName}")
-    public ResponseEntity<List<PostDto>>getPostsByTags(@PathVariable String tagName, HttpSession session) {
+    public ResponseEntity<List<PostDto>>getPostsByTags(@PathVariable String tagName, HttpServletRequest request) {
         log.debug(">> get posts by tags {}", tagName);
         try{
-            Long userId = (session!=null)?(Long) session.getAttribute("id"):null;
+            Long userId = (request!=null)?(Long) request.getAttribute("userId"):null;
 
             List <Long>postIds = tagRepository.getPostIdsByTagId(tagName);
 

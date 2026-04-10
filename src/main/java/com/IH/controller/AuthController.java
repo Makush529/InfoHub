@@ -4,7 +4,9 @@ import com.IH.model.dto.responce.UserResponse;
 import com.IH.model.dto.request.LoginRequest;
 import com.IH.model.dto.request.RegisterRequest;
 import com.IH.model.dto.responce.UserDto;
+import com.IH.service.JwtService;
 import com.IH.service.SecurityService;
+import com.IH.service.TokenBlacklistService;
 import com.IH.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +41,10 @@ public class AuthController {
     private SecurityService securityService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private TokenBlacklistService blacklistService;
 
     @PostMapping("/register")
     @Operation(summary = "registration new user", description = "create new user in the system")
@@ -93,21 +100,23 @@ public class AuthController {
                     , description = "Validation error"
                     , content = @Content),
     })
-    public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest request, HttpSession session) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
             UserResponse userResponse = securityService.login(request);
 
             if (userResponse != null) {
-                session.setAttribute("username", userResponse.getUsername());
-                session.setAttribute("id", userResponse.getId());
+                // Генерируем JWT вместо сессии
+                String token = jwtService.generateToken(userResponse.getLogin(), userResponse.getId());
 
-                UserDto userDto = new UserDto();
-                userDto.setId(userResponse.getId());
-                userDto.setLogin(userResponse.getLogin());
-                userDto.setUsername(userResponse.getUsername());
-                return ResponseEntity.ok(userDto);//TODO проверить 200/201!!!
+                Map<String, Object> response = new HashMap<>();
+                response.put("token", token);
+                response.put("userId", userResponse.getId());
+                response.put("username", userResponse.getUsername());
+                response.put("login", userResponse.getLogin());
+
+                return ResponseEntity.status(HttpStatus.OK).body(response);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
         } catch (SQLException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -123,9 +132,16 @@ public class AuthController {
             @ApiResponse(responseCode = "400"
                     , description = "Error when exiting")
     })
-    public ResponseEntity<Void> logout(HttpSession session) {
-        session.invalidate();
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            blacklistService.addToBlacklist(token);  // ← добавляем в черный список
+            return ResponseEntity.ok("Logged out successfully");
+        }
+
+        return ResponseEntity.badRequest().body("No token provided");
     }
 
     @GetMapping("/me")
@@ -143,20 +159,20 @@ public class AuthController {
                     , content = @Content)
     })
 
-    public ResponseEntity<UserDto> getCurrentUser(HttpSession session) {
+    public ResponseEntity<UserDto> getCurrentUser(HttpServletRequest request) {
         log.debug(">>about profile");
-        Long id = (Long) session.getAttribute("id");
-        if (id == null) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
             log.warn("<<user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<UserDto> userOpt = securityService.findById(id);
+        Optional<UserDto> userOpt = securityService.findById(userId);
         if (userOpt.isPresent()) {
             UserDto user =  userOpt.get();
-            int rating = userService.getUserRating(id);
+            int rating = userService.getUserRating(userId);
             user.setRating(rating);
             log.debug("<<user found: {}", user);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.status(HttpStatus.OK).body(user);
         } else {
             log.warn("<<user not found");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

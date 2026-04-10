@@ -3,6 +3,7 @@ package com.IH.controller;
 import com.IH.model.dto.request.CreateCommentRequest;
 import com.IH.model.dto.responce.CommentDto;
 import com.IH.service.CommentService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -27,17 +28,17 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createComment(@Valid @RequestBody CreateCommentRequest request,
-                                           HttpSession session) throws SQLException {
-        log.debug(">> Adding a comment to a post with Id = {} ", request.getPostId());
-        Long userId = (Long) session.getAttribute("id");
+    public ResponseEntity<?> createComment(@Valid @RequestBody CreateCommentRequest commentRequest,
+                                           HttpServletRequest request) throws SQLException {
+        log.debug(">> Adding a comment to a post with Id = {} ", commentRequest.getPostId());
+        Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
             log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("You must be logged in to comment");
         }
 
-        Optional<Long> commentId = commentService.createComment(request, userId);
+        Optional<Long> commentId = commentService.createComment(commentRequest, userId);
 
         if (commentId.isPresent()) {
             log.debug("<< OK:Comment created: {}", commentId.get());
@@ -49,18 +50,18 @@ public class CommentController {
     }
 
     @GetMapping("/post/{postId}")
-    public ResponseEntity<List<CommentDto>> getCommentsByPost(@PathVariable Long postId, HttpSession session) {
+    public ResponseEntity<List<CommentDto>> getCommentsByPost(@PathVariable Long postId, HttpServletRequest request) {
         log.debug(">> Getting all comments for a post with id = {}", postId);
-        Long userId = (Long) session.getAttribute("id");
+        Long userId = (Long) request.getAttribute("userId");
         List<CommentDto> comments = commentService.getCommentsByPost(postId, userId);
         log.debug("<< OK:Comments found: {}", comments.size());
         return ResponseEntity.ok(comments);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<?> deleteComment(@PathVariable Long id, HttpServletRequest request) {
         log.debug(">> deleting a comment with index id = {} ", id);
-        Long userId = (Long) session.getAttribute("id");
+        Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
             log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

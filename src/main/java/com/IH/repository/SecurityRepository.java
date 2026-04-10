@@ -38,6 +38,25 @@ public class SecurityRepository {
             }
         }throw new SQLException("Failed to register user, no ID returned");
     }
+
+    public UserResponse getUserByLogin(String login) throws SQLException {
+
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommands.GET_USER_BY_LOGIN)) {
+            ps.setString(1, login);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UserResponse user = new UserResponse();
+                    user.setId(rs.getLong("id"));
+                    user.setLogin(rs.getString("login"));
+                    user.setUsername(rs.getString("username"));
+                    user.setPasswordHash(rs.getString("password"));
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
+
     public UserResponse getUserByCredentials(String login, String password) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(SQLCommands.AUTH_USER)) {
             statement.setString(1, login);
@@ -54,6 +73,7 @@ public class SecurityRepository {
         }
         return null;
     }
+
     public Optional<UserDto> getUserById(long id) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(SQLCommands.GET_USER_BY_ID_FULL)) {
             statement.setLong(1, id);

@@ -7,5 +7,6 @@ public class UserResponse {
     private Long id;
     private String login;
     private String username;
+    private String passwordHash;
     private String role;
 }

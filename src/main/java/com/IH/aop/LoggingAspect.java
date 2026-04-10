@@ -1,31 +1,33 @@
 package com.IH.aop;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 
+@Slf4j
 @Aspect
 @Component
 public class LoggingAspect {
 
-    // Срез: все методы во всех контроллерах пакета com.IH.controller
     @Pointcut("execution(* com.IH.controller..*(..))")
-    public void controllerMethods() {}
+    public void controllerMethods() {
+    }
 
-    // Выполнить перед входом в метод
     @Before("controllerMethods()")
     public void logBeforeMethod(JoinPoint joinPoint) {
         String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
         Object[] args = joinPoint.getArgs();
 
-        System.out.println("\n===== AOP LOG START =====");//TODO надо как то убрать в логи!
-        System.out.println("Вызван класс: " + className);
-        System.out.println("Вызван метод: " + methodName);
-        System.out.println("Аргументы: " + Arrays.toString(args));
-        System.out.println("===== AOP LOG END =====\n");
+        log.debug("===== AOP LOG START =====");
+        log.debug("Вызван класс: " + className);
+        log.debug("Вызван метод: " + methodName);
+        log.debug("Аргументы: " + Arrays.toString(args));
+        log.debug("===== AOP LOG END =====");
     }
 }
