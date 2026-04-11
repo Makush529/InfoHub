@@ -3,8 +3,8 @@ package com.IH.controller;
 import com.IH.model.dto.request.CreateCommentRequest;
 import com.IH.model.dto.responce.CommentDto;
 import com.IH.service.CommentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,9 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping("/comments")
+@Tag(name = "CommentController", description = "Comments endpoints")
 public class CommentController {
+
     private final CommentService commentService;
 
     @Autowired

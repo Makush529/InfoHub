@@ -22,14 +22,17 @@ import java.util.List;
 @Tag(name = "Admin", description = "Administrative endpoints")
 public class AdminController {
 
-    @Autowired
-    private PostService postService;
+
+    private final PostService postService;
+    private final AuthUtil authUtil;
+    private final CommentService commentService;
 
     @Autowired
-    private AuthUtil authUtil;
-
-    @Autowired
-    private CommentService commentService;
+    public AdminController(PostService postService, AuthUtil authUtil, CommentService commentService) {
+        this.postService = postService;
+        this.authUtil = authUtil;
+        this.commentService = commentService;
+    }
 
     @GetMapping("/posts/pending")
     @Operation(summary = "Get pending posts", description = "Returns all posts waiting for moderation")
@@ -98,7 +101,6 @@ public class AdminController {
         return ResponseEntity.ok(pendingComments);
     }
 
-    // Одобрить комментарий
     @PostMapping("/comments/{id}/approve")
     @Operation(summary = "Approve a comment", description = "Approves a pending comment")
     public ResponseEntity<?> approveComment(@PathVariable Long id, HttpServletRequest request) {
@@ -118,7 +120,6 @@ public class AdminController {
         }
     }
 
-    // Отклонить комментарий
     @PostMapping("/comments/{id}/reject")
     @Operation(summary = "Reject a comment", description = "Rejects a pending comment")
     public ResponseEntity<?> rejectComment(@PathVariable Long id, HttpServletRequest request) {
@@ -134,7 +135,7 @@ public class AdminController {
             log.info("Comment {} rejected by user {}", id, userId);
             return ResponseEntity.ok("Comment rejected successfully");
         } else {
-            return ResponseEntity.badRequest().body("Could not reject comment");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not reject comment");
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.IH.controller;
 
+import com.IH.model.dto.UserRole;
 import com.IH.model.dto.responce.UserResponse;
 import com.IH.model.dto.request.LoginRequest;
 import com.IH.model.dto.request.RegisterRequest;
@@ -15,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -37,14 +37,18 @@ import java.util.Optional;
 public class AuthController {
     Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+    private final SecurityService securityService;
+    private final UserService userService;
+    private final JwtService jwtService;
+    private final TokenBlacklistService blacklistService;
+
     @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private TokenBlacklistService blacklistService;
+    public AuthController(SecurityService securityService, UserService userService, JwtService jwtService, TokenBlacklistService blacklistService) {
+        this.securityService = securityService;
+        this.userService = userService;
+        this.jwtService = jwtService;
+        this.blacklistService = blacklistService;
+    }
 
     @PostMapping("/register")
     @Operation(summary = "registration new user", description = "create new user in the system")
@@ -105,7 +109,6 @@ public class AuthController {
             UserResponse userResponse = securityService.login(request);
 
             if (userResponse != null) {
-                // Генерируем JWT вместо сессии
                 String token = jwtService.generateToken(userResponse.getLogin(), userResponse.getId());
 
                 Map<String, Object> response = new HashMap<>();
@@ -168,10 +171,12 @@ public class AuthController {
         }
         Optional<UserDto> userOpt = securityService.findById(userId);
         if (userOpt.isPresent()) {
-            UserDto user =  userOpt.get();
+            UserDto user = userOpt.get();
             int rating = userService.getUserRating(userId);
             user.setRating(rating);
             log.debug("<<user found: {}", user);
+            Optional<UserRole> roleOpt = securityService.getUserRole(userId);
+            roleOpt.ifPresent(role -> user.setRole(role.name()));
             return ResponseEntity.status(HttpStatus.OK).body(user);
         } else {
             log.warn("<<user not found");

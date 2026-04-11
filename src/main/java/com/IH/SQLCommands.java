@@ -7,13 +7,6 @@ public interface SQLCommands {
                     "WHERE security.login = ? AND security.password = ?";
 
     String REGISTER_USER =
-            /*"WITH inserted_user AS (" +
-                    "  INSERT INTO users (username, user_age) " +
-                    "  VALUES (?, ?) " +
-                    "  RETURNING id) " +
-                    "INSERT INTO public.security (login, password, user_id) " +
-                    "VALUES (?, ?, (SELECT id FROM inserted_user))" +
-                    "RETURNING user_id";*/
             "WITH inserted_user AS (" +
                     "    INSERT INTO users (username, user_age) VALUES (?, ?) RETURNING id" +
                     ") " +
@@ -28,10 +21,11 @@ public interface SQLCommands {
 
     String GET_USER_BY_ID = "SELECT * FROM users WHERE id = ?";//TODO поиск через юзер(старый)
 
-    String GET_USER_BY_ID_FULL =//TODO поиск через authController НЕ ПОМНЮ УЖЕ
-            "SELECT u.id, u.username, u.user_age, s.login " +//TODO добавить рейтинги и роль
+    String GET_USER_BY_ID_FULL =
+            "SELECT u.id, u.username, u.user_age, s.login " +
                     "FROM users u JOIN security s ON u.id = s.user_id " +
                     "WHERE u.id = ?";
+
     String ADD_USER_ROLE =
             "INSERT INTO user_roles (user_id, role) VALUES (?, ?)";
 

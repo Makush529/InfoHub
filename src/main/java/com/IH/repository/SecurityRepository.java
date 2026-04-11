@@ -38,7 +38,8 @@ public class SecurityRepository {
                     return rs.getLong("user_id");
                 }
             }
-        }throw new SQLException("Failed to register user, no ID returned");
+        }
+        throw new SQLException("Failed to register user, no ID returned");
     }
 
     public UserResponse getUserByLogin(String login) throws SQLException {
@@ -66,7 +67,7 @@ public class SecurityRepository {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    UserResponse user  = new UserResponse();
+                    UserResponse user = new UserResponse();
                     user.setUsername(resultSet.getString("username"));
                     user.setId(resultSet.getLong("id"));
                     return user;
@@ -105,8 +106,7 @@ public class SecurityRepository {
     }
 
     public Optional<UserRole> getUserRole(Long userId) throws SQLException {
-        String sql = "SELECT role FROM user_roles WHERE user_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommands.GET_USER_ROLE)) {
             ps.setLong(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

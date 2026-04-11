@@ -33,11 +33,10 @@ public class SpringConfig {
     @Bean
     public Connection getConnection() {
         try {
-            //TODO доделать логи вместо SOT
-            System.out.println("Попытка подключения к: " + dbURL + " под пользователем: " + dbName);
+            log.debug("Trying to connect to: " + dbURL + " under user: " + dbName);
             return DriverManager.getConnection(dbURL, dbName, dbPassword);
         } catch (SQLException e) {
-            System.err.println("ОШИБКА ПОДКЛЮЧЕНИЯ: " + e.getMessage());
+            log.debug("CONNECTION ERROR: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
