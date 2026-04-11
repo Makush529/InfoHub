@@ -14,12 +14,13 @@ public interface SQLCommandsComments {
                     "ORDER BY c.comment_date DESC";
 
     String GET_PENDING_COMMENTS =
-            "SELECT  c.id, c.content, c.comment_date, c.status, " +
-                    "u.id as author_id, u.name as author_name, " +
+            "SELECT c.id, c.content, c.comment_date, c.status, " +
+                    "       u.id as author_id, u.username as author_name, " +
+                    "       c.post_id " +
                     "FROM comments c " +
-                    "JOIN users u c.user_id = u.id " +
-                    "WHERE c.post_id = ? AND c.status = 'PENDING' " +
-                    "ORDER BY c.comment_date DESC";
+                    "JOIN users u ON c.user_id = u.id " +
+                    "WHERE c.status = 'PENDING' " +
+                    "ORDER BY c.comment_date ASC";
 
     String UPDATE_COMMENT_STATUS =
             "UPDATE comments set status = ? where id = ?";

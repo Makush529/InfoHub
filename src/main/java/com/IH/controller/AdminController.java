@@ -1,6 +1,8 @@
 package com.IH.controller;
 
+import com.IH.model.dto.responce.CommentDto;
 import com.IH.model.dto.responce.PostDto;
+import com.IH.service.CommentService;
 import com.IH.service.PostService;
 import com.IH.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +27,9 @@ public class AdminController {
 
     @Autowired
     private AuthUtil authUtil;
+
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/posts/pending")
     @Operation(summary = "Get pending posts", description = "Returns all posts waiting for moderation")
@@ -76,6 +81,60 @@ public class AdminController {
             return ResponseEntity.ok("Post rejected successfully");
         } else {
             return ResponseEntity.badRequest().body("Could not reject post");
+        }
+    }
+
+    @GetMapping("/comments/pending")
+    @Operation(summary = "Get pending comments", description = "Returns all comments waiting for moderation")
+    public ResponseEntity<?> getPendingComments(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        if (!authUtil.isModerator(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access denied. Admin or Moderator role required.");
+        }
+
+        List<CommentDto> pendingComments = commentService.getPendingComments();
+        return ResponseEntity.ok(pendingComments);
+    }
+
+    // Одобрить комментарий
+    @PostMapping("/comments/{id}/approve")
+    @Operation(summary = "Approve a comment", description = "Approves a pending comment")
+    public ResponseEntity<?> approveComment(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        if (!authUtil.isModerator(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access denied. Admin or Moderator role required.");
+        }
+
+        boolean success = commentService.approveComment(id);
+        if (success) {
+            log.info("Comment {} approved by user {}", id, userId);
+            return ResponseEntity.ok("Comment approved successfully");
+        } else {
+            return ResponseEntity.badRequest().body("Could not approve comment");
+        }
+    }
+
+    // Отклонить комментарий
+    @PostMapping("/comments/{id}/reject")
+    @Operation(summary = "Reject a comment", description = "Rejects a pending comment")
+    public ResponseEntity<?> rejectComment(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        if (!authUtil.isModerator(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access denied. Admin or Moderator role required.");
+        }
+
+        boolean success = commentService.rejectComment(id);
+        if (success) {
+            log.info("Comment {} rejected by user {}", id, userId);
+            return ResponseEntity.ok("Comment rejected successfully");
+        } else {
+            return ResponseEntity.badRequest().body("Could not reject comment");
         }
     }
 }

@@ -25,9 +25,9 @@ public class LoggingAspect {
         Object[] args = joinPoint.getArgs();
 
         log.debug("===== AOP LOG START =====");
-        log.debug("Вызван класс: " + className);
-        log.debug("Вызван метод: " + methodName);
-        log.debug("Аргументы: " + Arrays.toString(args));
+        log.debug("Class called: " + className);
+        log.debug("Method called: " + methodName);
+        log.debug("Arguments: " + Arrays.toString(args));
         log.debug("===== AOP LOG END =====");
     }
 }

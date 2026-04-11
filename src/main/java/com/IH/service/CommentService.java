@@ -47,7 +47,7 @@ public class CommentService {
         }
     }
 
-    public List<CommentDto> getPendingComment() {
+    public List<CommentDto> getPendingComments() {
         try {
             return commentRepository.getPendingComment();
         } catch (SQLException e) {
@@ -56,15 +56,20 @@ public class CommentService {
         }
     }
 
-    public boolean moderateComment(Long commentId, CommentStatus newStatus) {//TODO добавить проверку на админа, модератора!
+    public boolean approveComment(Long commentId) {
         try {
-            boolean updated = commentRepository.updateCommentStatus(commentId, newStatus);
-            if (updated){
-                log.info("Comment {} moderated to status: {}", commentId, newStatus);
-            }
-            return updated;
+            return commentRepository.updateCommentStatus(commentId, CommentStatus.APPROVED);
         } catch (SQLException e) {
-            log.error("Error moderating comment: {}", commentId, e);
+            log.error("Error approving comment: {}", commentId, e);
+            return false;
+        }
+    }
+
+    public boolean rejectComment(Long commentId) {
+        try {
+            return commentRepository.updateCommentStatus(commentId, CommentStatus.REJECTED);
+        } catch (SQLException e) {
+            log.error("Error rejecting comment: {}", commentId, e);
             return false;
         }
     }
