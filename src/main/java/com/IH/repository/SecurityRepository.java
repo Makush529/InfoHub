@@ -5,6 +5,7 @@ import com.IH.SQLCommands;
 import com.IH.model.dto.responce.UserResponse;
 import com.IH.model.dto.UserRole;
 import com.IH.model.dto.responce.UserDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +16,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class SecurityRepository {
     private final Connection connection;
@@ -100,5 +102,20 @@ public class SecurityRepository {
             ps.setString(2, role.name());
             ps.executeUpdate();
         }
+    }
+
+    public Optional<UserRole> getUserRole(Long userId) throws SQLException {
+        String sql = "SELECT role FROM user_roles WHERE user_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(UserRole.valueOf(rs.getString("role")));
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Error getting user role for id: {}", userId, e);
+        }
+        return Optional.empty();
     }
 }

@@ -6,6 +6,7 @@ import com.IH.model.dto.request.LoginRequest;
 import com.IH.model.dto.request.RegisterRequest;
 import com.IH.model.dto.responce.UserDto;
 import com.IH.repository.SecurityRepository;
+import com.IH.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,13 @@ public class SecurityService {
 
     private final SecurityRepository securityRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     @Autowired
-    public SecurityService(SecurityRepository securityRepository, PasswordEncoder passwordEncoder) {
+    public SecurityService(SecurityRepository securityRepository, PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.securityRepository = securityRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     public UserResponse registration(RegisterRequest request) throws SQLException {
@@ -77,4 +80,14 @@ public class SecurityService {
             return Optional.empty();
         }
     }
+
+    public Optional<UserRole> getUserRole(Long userId) {
+        try {
+            return securityRepository.getUserRole(userId);  // ← возвращаем Optional<UserRole>
+        } catch (SQLException e) {
+            log.error("Error getting user role", e);
+            return Optional.empty();
+        }
+    }
+
 }

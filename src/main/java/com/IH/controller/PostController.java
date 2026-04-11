@@ -5,6 +5,7 @@ import com.IH.model.dto.responce.PostDto;
 import com.IH.model.dto.responce.TagDto;
 import com.IH.repository.TagRepository;
 import com.IH.service.PostService;
+import com.IH.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,11 +31,14 @@ public class PostController {
 
     private final PostService postService;
     private final TagRepository tagRepository;
+    private final AuthUtil authUtil;
+
 
     @Autowired
-    public PostController(PostService postService, TagRepository tagRepository) {
+    public PostController(PostService postService, TagRepository tagRepository, AuthUtil authUtil) {
         this.postService = postService;
         this.tagRepository = tagRepository;
+        this.authUtil = authUtil;
     }
 
     @PostMapping()
@@ -210,6 +214,45 @@ public class PostController {
         }catch (Exception e){
             log.error("<<Error getting posts by tags", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a post", description = "Deletes a post. Author, moderator or admin can delete.")
+    public ResponseEntity<?> deletePost(@PathVariable Long id,
+                                        HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("You must be logged in to delete a post");
+        }
+
+        Optional<Long> authorIdOpt = postService.getPostAuthorId(id);
+        if (authorIdOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Post not found");
+        }
+
+        Long authorId = authorIdOpt.get();
+
+        boolean isAuthor = userId.equals(authorId);
+        boolean isModerator = authUtil.isModerator(userId);
+
+        if (!isAuthor && !isModerator) {
+            log.warn("User {} tried to delete post {} without permission", userId, id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You are not the author of this post");
+        }
+
+        boolean deleted = postService.deletePost(id);
+
+        if (deleted) {
+            log.info("Post {} deleted by user {}", id, userId);
+            return ResponseEntity.ok("Post deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Could not delete post");
         }
     }
 }

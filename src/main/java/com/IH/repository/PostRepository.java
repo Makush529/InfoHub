@@ -1,5 +1,6 @@
 package com.IH.repository;
 
+import com.IH.SQLCommandsPosts;
 import com.IH.model.dto.responce.PostResponse;
 import com.IH.model.dto.PostStatus;
 import com.IH.model.dto.responce.PostDto;
@@ -38,6 +39,33 @@ public class PostRepository {
         }
         return null;
     }
+    public List<PostDto> getPendingPosts() throws SQLException {
+        List<PostDto> posts = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsPosts.GET_PENDING_POSTS);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                PostDto post = new PostDto();
+                post.setId(rs.getLong("id"));
+                post.setTitle(rs.getString("post_title"));
+                post.setContent(rs.getString("text"));
+                post.setCreatedAt(rs.getDate("post_age").toLocalDate());
+                post.setStatus(PostStatus.valueOf(rs.getString("status")));
+                post.setAuthorId(rs.getLong("author_id"));
+                post.setAuthorName(rs.getString("author_name"));
+                posts.add(post);
+            }
+        }
+        return posts;
+    }
+
+    public boolean updatePostStatus(Long postId, String status) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsPosts.UPDATE_POST_STATUS)) {
+            ps.setString(1, status);
+            ps.setLong(2, postId);
+            return ps.executeUpdate() > 0;
+        }
+    }
 
     public List<PostDto> getAllPublishedPosts(Long currentUserId) throws SQLException {
         List<PostDto> posts = new ArrayList<>();
@@ -71,6 +99,26 @@ public class PostRepository {
                 }
             }
         }return Optional.empty();
+    }
+
+    public boolean deletePostById(Long postId) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsPosts.DELETE_POST_BY_ID)) {
+            ps.setLong(1, postId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public Optional<Long> getPostAuthorId(Long postId) throws SQLException {
+
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsPosts.GET_POST_AUTHOR)) {
+            ps.setLong(1, postId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(rs.getLong("user_id"));
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     public boolean addLike(Long postId, Long userId) throws SQLException {

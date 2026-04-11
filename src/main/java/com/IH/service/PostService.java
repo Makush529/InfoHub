@@ -134,7 +134,48 @@ public class PostService {
         }
     }
 
-    public List<PostResponse> getFeed() throws SQLException {
-        return postRepository.findAll();
+    public boolean deletePost(Long postId) {
+        try {
+            return postRepository.deletePostById(postId);
+        } catch (SQLException e) {
+            log.error("Error deleting post: {}", postId, e);
+            return false;
+        }
+    }
+
+    public Optional<Long> getPostAuthorId(Long postId) {
+        try {
+            return postRepository.getPostAuthorId(postId);
+        } catch (SQLException e) {
+            log.error("Error getting post author: {}", postId, e);
+            return Optional.empty();
+        }
+    }
+
+    public List<PostDto> getPendingPosts() {
+        try {
+            return postRepository.getPendingPosts();
+        } catch (SQLException e) {
+            log.error("Error getting pending posts", e);
+            return List.of();
+        }
+    }
+
+    public boolean approvePost(Long postId) {
+        try {
+            return postRepository.updatePostStatus(postId, "APPROVED");
+        } catch (SQLException e) {
+            log.error("Error approving post: {}", postId, e);
+            return false;
+        }
+    }
+
+    public boolean rejectPost(Long postId) {
+        try {
+            return postRepository.updatePostStatus(postId, "REJECTED");
+        } catch (SQLException e) {
+            log.error("Error rejecting post: {}", postId, e);
+            return false;
+        }
     }
 }

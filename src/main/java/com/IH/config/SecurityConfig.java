@@ -24,21 +24,19 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login").permitAll()
-                        .requestMatchers("/posts").permitAll()           // ← просмотр постов всем
-                        .requestMatchers("/posts/{id}").permitAll()     // ← просмотр одного поста всем
+                        .requestMatchers("/posts").permitAll()
+                        .requestMatchers("/posts/{id}").permitAll()
                         .requestMatchers("/posts/tag/{tagName}").permitAll()
-                        .requestMatchers("/comments/post/{postId}").permitAll()  // ← просмотр комментариев всем
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()  // ← Swagger
+                        .requestMatchers("/comments/post/{postId}").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
-                        // 🔒 ЗАЩИЩЕННЫЕ ЭНДПОИНТЫ (требуют авторизации)
-                        .requestMatchers("/posts/create").authenticated()      // ← создание поста
-                        .requestMatchers("/posts/{id}/like").authenticated()   // ← лайки
+                        .requestMatchers("/posts/create").authenticated()
+                        .requestMatchers("/posts/{id}/like").authenticated()
                         .requestMatchers("/posts/{id}/dislike").authenticated()
-                        .requestMatchers("/comments").authenticated()          // ← создание комментария
-                        .requestMatchers("/auth/me").authenticated()           // ← профиль
-                        .requestMatchers("/users/{id}").permitAll()            // ← публичный профиль (можно всем)
+                        .requestMatchers("/comments").authenticated()
+                        .requestMatchers("/auth/me").authenticated()
+                        .requestMatchers("/users/{id}").permitAll()
 
-                        // Все остальные требуют авторизации
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
