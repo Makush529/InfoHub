@@ -8,7 +8,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -43,6 +45,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        log.warn("Type mismatch: parameter '{}' expected type '{}', but got '{}'",
+                ex.getName(),
+                ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown",
+                ex.getValue());
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now().format(FORMATTER));
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Bad Request");
+        response.put("message", String.format("Parameter '%s' must be a valid number", ex.getName()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
 
@@ -54,8 +72,19 @@ public class GlobalExceptionHandler {
         response.put("error", "Internal Server Error");
         response.put("message", "Something went wrong. Please try again later.");
 
-        //TODO ?????? response.put("details", ex.getMessage());
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<Map<String, Object>> handleSQLException(SQLException ex) {
+        log.error("Database error", ex);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now().format(FORMATTER));
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("error", "Database Conflict");
+        response.put("message", "Database error occurred. Please try again.");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }

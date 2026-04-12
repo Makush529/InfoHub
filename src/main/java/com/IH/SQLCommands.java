@@ -39,4 +39,8 @@ public interface SQLCommands {
                     "), 0) as rating " +
                     "FROM posts p WHERE p.user_id = ?";
 
+    String INSERT_LOG =
+            "INSERT INTO logs (user_id, action, details, created_at) " +
+                    "VALUES (?, ?, ?, CURRENT_TIMESTAMP)";
+
 }

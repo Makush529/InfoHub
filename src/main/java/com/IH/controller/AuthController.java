@@ -161,7 +161,6 @@ public class AuthController {
                     , description = "User not found"
                     , content = @Content)
     })
-
     public ResponseEntity<UserDto> getCurrentUser(HttpServletRequest request) {
         log.debug(">>about profile");
         Long userId = (Long) request.getAttribute("userId");

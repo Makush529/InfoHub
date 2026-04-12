@@ -7,8 +7,11 @@ import com.IH.repository.TagRepository;
 import com.IH.service.PostService;
 import com.IH.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -32,7 +35,6 @@ public class PostController {
     private final TagRepository tagRepository;
     private final AuthUtil authUtil;
 
-
     @Autowired
     public PostController(PostService postService, TagRepository tagRepository, AuthUtil authUtil) {
         this.postService = postService;
@@ -54,15 +56,15 @@ public class PostController {
         log.debug(">> post title {} ", postRequest.getTitle());
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            log.warn("<<UNAUTHORIZED: user unauthorized");
+            log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not logged in");
         }
         Optional<Long> postId = postService.createPost(postRequest, userId);
         if (postId.isPresent()) {
-            log.debug("<<OK:Post has been successfully created and sent for moderation.");
+            log.debug("<< OK:Post has been successfully created and sent for moderation.");
             return ResponseEntity.status(HttpStatus.OK).body("Post created, id: " + postId.get());
         } else {
-            log.warn("<<BAD_REQUEST: Post could not be created");
+            log.warn("<< BAD_REQUEST: Post could not be created");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post could not be created");
         }
     }
@@ -94,10 +96,10 @@ public class PostController {
         Long userId = (Long) request.getAttribute("userId");
         Optional<PostDto> post = postService.getPostById(id, userId);
         if (post.isPresent()) {
-            log.debug("<<OK: Post has been successfully retrieved.");
+            log.debug("<< OK: Post has been successfully retrieved.");
             return ResponseEntity.status(HttpStatus.OK).body(post.get());
         } else {
-            log.warn("<<NOT_FOUND: Post could not be retrieved.");
+            log.warn("<< NOT_FOUND: Post could not be retrieved.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
@@ -115,15 +117,15 @@ public class PostController {
         log.debug(">> addLike, post id = {}", id);
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            log.warn("<<UNAUTHORIZED: user unauthorized");
+            log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.addLike(id, userId);
         if (success) {
-            log.debug("<<OK: Post has been successfully liked.");
+            log.debug("<< OK: Post has been successfully liked.");
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
-            log.warn("<<BAD_REQUEST: Post could not be liked.");
+            log.warn("<< BAD_REQUEST: Post could not be liked.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
@@ -141,15 +143,15 @@ public class PostController {
         log.debug(">> add dislike, post id = {}", id);
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            log.warn("<<UNAUTHORIZED: user unauthorized");
+            log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.addDislike(id, userId);
         if (success) {
-            log.debug("<<OK: Dislike successfully placed");
+            log.debug("<< OK: Dislike successfully placed");
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
-            log.warn("<<BAD_REQUEST: Post could not be liked.");
+            log.warn("<< BAD_REQUEST: Post could not be liked.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
@@ -165,35 +167,59 @@ public class PostController {
         log.debug(">> removeReaction, post id = {}", id);
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
-            log.warn("<<UNAUTHORIZED: user unauthorized");
+            log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
         }
         boolean success = postService.removeReaction(id, userId);
         if (success) {
-            log.debug("<<OK: Reaction has been successfully removed.");
+            log.debug("<< OK: Reaction has been successfully removed.");
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
-            log.warn("<<BAD_REQUEST: Reaction could not be removed.");
+            log.warn("<< BAD_REQUEST: Reaction could not be removed.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);//TODO проверить, может 404
         }
     }
-    //TODO Дописать удаление, редактирвание
 
-    //TODO Дописать сваггер
     @GetMapping("/tags")
+    @Operation(
+            summary = "Get all tags",
+            description = "Returns a list of all tags with the number of posts associated with each tag. " +
+                    "Does not require authentication."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Tags retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = TagDto.class))
+            ),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<List<TagDto>> getAllTags() {
         log.debug(">> get all tags");
         try{List<TagDto>tags =tagRepository.getAllTags();
-            log.debug("<<tags were sent successfully {}}",tags.size());
+            log.debug("<< tags were sent successfully {}}",tags.size());
         return ResponseEntity.status(HttpStatus.OK).body(tags);}
         catch(Exception e){
-            log.error("<<Error getting all tags", e);
+            log.error("<< Error getting all tags", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    //TODO доделать сваггер
     @GetMapping("/tag/{tagName}")
+    @Operation(
+            summary = "Get posts by tag",
+            description = "Returns all approved posts associated with the specified tag. " +
+                    "Authentication is optional - shows user's likes/dislikes status if authenticated."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Posts retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = PostDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Tag not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<List<PostDto>>getPostsByTags(@PathVariable String tagName, HttpServletRequest request) {
         log.debug(">> get posts by tags {}", tagName);
         try{
@@ -218,17 +244,28 @@ public class PostController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a post", description = "Deletes a post. Author, moderator or admin can delete.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Post deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "User is not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Access denied (not the author and not moderator/admin)"),
+            @ApiResponse(responseCode = "404", description = "Post not found"),
+            @ApiResponse(responseCode = "500", description = "Could not delete post (internal error)")
+    })
+    @SecurityRequirement(name = "BearerAuth")
     public ResponseEntity<?> deletePost(@PathVariable Long id,
                                         HttpServletRequest request) {
+        log.debug(">> delete post, post id = {}", id);
         Long userId = (Long) request.getAttribute("userId");
 
         if (userId == null) {
+            log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("You must be logged in to delete a post");
         }
 
         Optional<Long> authorIdOpt = postService.getPostAuthorId(id);
         if (authorIdOpt.isEmpty()) {
+            log.warn("<< NO AUTHOR ID FOUND");
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Post not found");
         }
@@ -239,7 +276,7 @@ public class PostController {
         boolean isModerator = authUtil.isModerator(userId);
 
         if (!isAuthor && !isModerator) {
-            log.warn("User {} tried to delete post {} without permission", userId, id);
+            log.warn("<< User {} tried to delete post {} without permission", userId, id);
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("You are not the author of this post");
         }
@@ -247,9 +284,10 @@ public class PostController {
         boolean deleted = postService.deletePost(id);
 
         if (deleted) {
-            log.info("Post {} deleted by user {}", id, userId);
+            log.info("<< Post {} deleted by user {}", id, userId);
             return ResponseEntity.ok("Post deleted successfully");
         } else {
+            log.info("<< Post {} could not be deleted", id);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Could not delete post");
         }
