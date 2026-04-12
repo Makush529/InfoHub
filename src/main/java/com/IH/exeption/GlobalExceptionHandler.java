@@ -87,4 +87,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
+
+    @ExceptionHandler(RegistrationException.class)
+    public ResponseEntity<Map<String, Object>> handleRegistration(RegistrationException ex) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now().format(FORMATTER));
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("error", "Registration failed");
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
 }

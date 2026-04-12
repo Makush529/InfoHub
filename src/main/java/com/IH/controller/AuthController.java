@@ -64,7 +64,7 @@ public class AuthController {
                     , content = @Content)
     })
     public ResponseEntity<UserDto> register(@Valid @RequestBody RegisterRequest request) {
-        logger.info(">>:" + request.getLogin());
+        log.info(">> Register request for login: {}", request.getLogin());
         try {
             UserResponse userResponse = securityService.registration(request);
             UserDto userDto = new UserDto();
@@ -72,22 +72,15 @@ public class AuthController {
             userDto.setId(userResponse.getId());
             userDto.setLogin(userResponse.getLogin());
             userDto.setUsername(userResponse.getUsername());
-            logger.info("<<: " + userResponse.toString());
-            return ResponseEntity.ok(userDto);//TODO проверить 200/203!!!!
+            log.info("<< User registered: {}", userResponse.getLogin());
+            return ResponseEntity.ok(userDto);
         } catch (SQLException e) {
-            System.err.println("!!! SQL ОШИБКА !!!");//TODO
-            e.printStackTrace();
+            log.error("<< SQL error during registration: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Database error: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            System.err.println("!!! НЕИЗВЕСТНАЯ ОШИБКА !!!");//TODO
-            e.printStackTrace();
-
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("<< Unexpected error during registration", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -105,6 +98,7 @@ public class AuthController {
                     , content = @Content),
     })
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        log.info(">> Login attempt for login: {}", request.getLogin());
         try {
             UserResponse userResponse = securityService.login(request);
 
@@ -117,11 +111,14 @@ public class AuthController {
                 response.put("username", userResponse.getUsername());
                 response.put("login", userResponse.getLogin());
 
+                log.info("<< Login successful for user: {}", userResponse.getLogin());
                 return ResponseEntity.status(HttpStatus.OK).body(response);
             } else {
+                log.warn("<< Login failed: invalid credentials for login: {}", request.getLogin());
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
         } catch (SQLException e) {
+            log.error("<< SQL error during login for login: {}", request.getLogin(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
