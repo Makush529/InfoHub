@@ -22,7 +22,7 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public Optional<Long> createComment(CreateCommentRequest request, Long userId) throws SQLException {
+    public Optional<Long> createComment(CreateCommentRequest request, Long userId){
         try {
             Long commentId = commentRepository.createComment(
                     request.getContent(),
@@ -74,12 +74,17 @@ public class CommentService {
         }
     }
 
-    public boolean deleteComment(Long commentId, Long userId){
+    public Optional<Long> getCommentAuthorId(Long postId) {
         try {
-            if(!commentRepository.isCommentOwner(commentId, userId)){
-                log.warn("Comment {} is not owned by user: {}", commentId, userId);
-                return false;
-            }
+            return commentRepository.getCommentAuthorId(postId);
+        } catch (SQLException e) {
+            log.error("Error getting comment author: {}", postId, e);
+            return Optional.empty();
+        }
+    }
+
+    public boolean deleteComment(Long commentId){
+        try {
             return commentRepository.deleteComment(commentId);}
         catch (SQLException e) {
             log.error("Error deleting comment: {}", commentId, e);

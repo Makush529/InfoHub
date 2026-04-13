@@ -173,31 +173,17 @@ public class PostRepository {
         }
     }
 
-    public void savePost(String postName, String text, Long userId) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(CREATE_POST)) {
-            statement.setString(1, postName);
-            statement.setString(2, text);
-            statement.setLong(3, userId);
-            statement.executeUpdate();
-        }
-    }
+    public List<PostDto> getAllPostsByRating(Long currentUserId) throws SQLException {
+        List<PostDto> posts = new ArrayList<>();
 
-    public List<PostResponse> findAll() throws SQLException {
-        List<PostResponse> posts = new ArrayList<>();//список постов
-        try (PreparedStatement ps = connection.prepareStatement(GET_ALL_POSTS);
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsPosts.GET_ALL_POSTS_BY_RATING);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
-                PostResponse post = new PostResponse();//один пост
-                post.setId(rs.getLong("id"));
-                post.setPostTitle(rs.getString("post_title"));
-                post.setText(rs.getString("text"));
-                post.setAuthorName(rs.getString("username"));
-                java.sql.Date dbDate = rs.getDate("post_age");
-                if (dbDate != null) {
-                    post.setPostAge(dbDate.toLocalDate());
-                } else {
-                    post.setPostAge(null); //TODO подумать, или LocalDate.now()
+                PostDto post = mapResultSetToPostDto(rs);
+
+                if (currentUserId != null) {
+                    post.setUserLiked(checkUserLike(post.getId(), currentUserId));
+                    post.setUserDisliked(checkUserDilLike(post.getId(), currentUserId));
                 }
                 posts.add(post);
             }

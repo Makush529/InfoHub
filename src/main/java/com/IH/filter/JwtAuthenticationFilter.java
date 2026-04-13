@@ -48,10 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = jwtService.extractUserId(token);
                 log.debug("Login: " + login + ", userId: " + userId);
 
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(login, null, null);
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(login
+                        , null
+                        , null);
                 SecurityContextHolder.getContext().setAuthentication(auth);
-
                 request.setAttribute("userId", userId);
             }
         }else {

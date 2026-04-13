@@ -1,6 +1,7 @@
 package com.IH.repository;
 
 import com.IH.SQLCommandsComments;
+import com.IH.SQLCommandsPosts;
 import com.IH.model.dto.CommentStatus;
 import com.IH.model.dto.responce.CommentDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CommentRepository {
@@ -62,14 +64,17 @@ public class CommentRepository {
         return comments;
     }
 
-    public boolean isCommentOwner(Long commentId, Long userId) throws SQLException {
-        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsComments.IS_COMMENT_OWNER)) {
-            ps.setLong(1, commentId);
-            ps.setLong(2, userId);
+    public Optional<Long> getCommentAuthorId(Long postId) throws SQLException {
+
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsComments.GET_COMMENT_AUTHOR)) {
+            ps.setLong(1, postId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                if (rs.next()) {
+                    return Optional.of(rs.getLong("user_id"));
+                }
             }
         }
+        return Optional.empty();
     }
 
     public boolean updateCommentStatus(Long commentId, CommentStatus status) throws SQLException {

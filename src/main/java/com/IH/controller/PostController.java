@@ -84,6 +84,21 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(posts);
     }
 
+    @GetMapping("/rating")
+    @Operation(summary = "Get posts sorted by rating",
+            description = "Returns all approved posts sorted by rating (likes - dislikes) from highest to lowest")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Posts retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<List<PostDto>> getAllPostsByRating(HttpServletRequest request) {
+        log.debug(">> get all posts by rating");
+        Long userId = (Long) request.getAttribute("userId");
+        List<PostDto> posts = postService.getAllPostsByRating(userId);
+        log.debug("<< posts by rating retrieved: {}", posts.size());
+        return ResponseEntity.status(HttpStatus.OK).body(posts);
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Find post by id"
             , description = "Returns detailed information about a specific post.")

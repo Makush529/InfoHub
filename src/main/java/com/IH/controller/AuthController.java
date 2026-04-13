@@ -140,7 +140,6 @@ public class AuthController {
             blacklistService.addToBlacklist(token);
             return ResponseEntity.ok("Logged out successfully");
         }
-
         return ResponseEntity.badRequest().body("No token provided");
     }
 

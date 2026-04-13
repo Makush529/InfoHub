@@ -25,9 +25,9 @@ public interface SQLCommandsComments {
     String UPDATE_COMMENT_STATUS =
             "UPDATE comments set status = ? where id = ?";
 
-    String IS_COMMENT_OWNER =
-            "SELECT 1 FROM comments WHERE id = ? and user_id = ?";
-
     String DELETE_COMMENT =
             "DELETE FROM comments WHERE id = ? ";
+
+    String GET_COMMENT_AUTHOR =
+            "SELECT user_id FROM comments WHERE id = ?";
 }

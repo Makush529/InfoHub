@@ -3,6 +3,8 @@ package com.IH.controller;
 import com.IH.model.dto.request.CreateCommentRequest;
 import com.IH.model.dto.responce.CommentDto;
 import com.IH.service.CommentService;
+import com.IH.service.UserService;
+import com.IH.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,10 +31,12 @@ import java.util.Optional;
 public class CommentController {
 
     private final CommentService commentService;
+    private final AuthUtil authUtil;
 
     @Autowired
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, AuthUtil authUtil) {
         this.commentService = commentService;
+        this.authUtil = authUtil;
     }
 
     @PostMapping
@@ -50,7 +54,7 @@ public class CommentController {
     })
     @SecurityRequirement(name = "BearerAuth")
     public ResponseEntity<?> createComment(@Valid @RequestBody CreateCommentRequest commentRequest,
-                                           HttpServletRequest request) throws SQLException {
+                                           HttpServletRequest request) {
         log.debug(">> Adding a comment to a post with Id = {} ", commentRequest.getPostId());
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
@@ -106,22 +110,40 @@ public class CommentController {
             @ApiResponse(responseCode = "401", description = "User is not authenticated"),
             @ApiResponse(responseCode = "403", description = "Access denied (not the author and not moderator/admin)")
     })
-    @SecurityRequirement(name = "BearerAuth")
     public ResponseEntity<?> deleteComment(@PathVariable Long id, HttpServletRequest request) {
-        log.debug(">> deleting a comment with index id = {} ", id);
+        log.debug(">> delete comment, comment id = {}", id);
         Long userId = (Long) request.getAttribute("userId");
+
         if (userId == null) {
             log.warn("<< UNAUTHORIZED: user unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("You must be logged");
+                    .body("You must be logged in to delete a comment");
         }
-        boolean deleted = commentService.deleteComment(id, userId);
+
+        Optional<Long> authorIdOpt = commentService.getCommentAuthorId(id);
+        if (authorIdOpt.isEmpty()) {
+            log.warn("<< Comment not found: {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Comment not found");
+        }
+
+        Long authorId = authorIdOpt.get();
+
+        if (!authUtil.isOwner(userId, authorId)) {
+            log.warn("<< User {} tried to delete comment {} without permission", userId, id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You are not the author of this comment");
+        }
+
+        boolean deleted = commentService.deleteComment(id);
+
         if (deleted) {
-            log.debug("<< OK:Comment deleted: {}", id);
-            return ResponseEntity.ok("Comment deleted");
+            log.info("<< Comment {} deleted by user {}", id, userId);
+            return ResponseEntity.ok("Comment deleted successfully");
         } else {
-            log.warn("<< BAD_REQUEST: Could not delete comment");
-            return ResponseEntity.badRequest().body("Could not delete comment");
+            log.error("<< Could not delete comment: {}", id);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Could not delete comment");
         }
     }
 }

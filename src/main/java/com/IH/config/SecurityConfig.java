@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/register", "/auth/login").permitAll()
                         .requestMatchers("/posts").permitAll()
+                        .requestMatchers("/posts/rating").permitAll()
                         .requestMatchers("/posts/{id}").permitAll()
                         .requestMatchers("/posts/tag/{tagName}").permitAll()
                         .requestMatchers("/comments/post/{postId}").permitAll()

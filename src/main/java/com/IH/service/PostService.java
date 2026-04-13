@@ -79,6 +79,15 @@ public class PostService {
         }
     }
 
+    public List<PostDto> getAllPostsByRating(Long currentUserId) {
+        try {
+            return postRepository.getAllPostsByRating(currentUserId);
+        } catch (SQLException e) {
+            log.error("Error getting posts by rating", e);
+            return List.of();
+        }
+    }
+
     public Optional<PostDto> getPostById(Long postId, Long userId) {
         try {
             Optional<PostDto> posts = postRepository.getPostById(postId, userId);
