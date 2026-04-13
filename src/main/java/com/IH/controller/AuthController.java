@@ -63,7 +63,7 @@ public class AuthController {
                     , description = "Internal Server Error"
                     , content = @Content)
     })
-    public ResponseEntity<UserDto> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         log.info(">> Register request for login: {}", request.getLogin());
         try {
             UserResponse userResponse = securityService.registration(request);
@@ -75,8 +75,8 @@ public class AuthController {
             log.info("<< User registered: {}", userResponse.getLogin());
             return ResponseEntity.ok(userDto);
         } catch (SQLException e) {
-            log.error("<< SQL error during registration: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            log.error("<< SQL error during registration: {}", request.getLogin());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("this login is already in use");
 
         } catch (Exception e) {
             log.error("<< Unexpected error during registration", e);
@@ -137,7 +137,7 @@ public class AuthController {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            blacklistService.addToBlacklist(token);  // ← добавляем в черный список
+            blacklistService.addToBlacklist(token);
             return ResponseEntity.ok("Logged out successfully");
         }
 

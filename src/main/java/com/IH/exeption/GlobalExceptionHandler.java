@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -75,19 +76,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    @ExceptionHandler(SQLException.class)
-    public ResponseEntity<Map<String, Object>> handleSQLException(SQLException ex) {
-        log.error("Database error", ex);
-
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("timestamp", LocalDateTime.now().format(FORMATTER));
-        response.put("status", HttpStatus.CONFLICT.value());
-        response.put("error", "Database Conflict");
-        response.put("message", "Database error occurred. Please try again.");
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-    }
-
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<Map<String, Object>> handleRegistration(RegistrationException ex) {
         Map<String, Object> response = new LinkedHashMap<>();
@@ -95,6 +83,19 @@ public class GlobalExceptionHandler {
         response.put("status", HttpStatus.CONFLICT.value());
         response.put("error", "Registration failed");
         response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<Map<String, Object>> handleSQLException(SQLException ex) {
+        log.error("SQL error: {}", ex.getMessage());
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now().format(FORMATTER));
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("error", "Conflict");
+        response.put("message", "User with this login already exists");
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }

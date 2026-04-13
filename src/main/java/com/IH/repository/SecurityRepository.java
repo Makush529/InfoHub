@@ -1,6 +1,5 @@
 package com.IH.repository;
 
-
 import com.IH.SQLCommands;
 import com.IH.model.dto.responce.UserResponse;
 import com.IH.model.dto.UserRole;
@@ -60,23 +59,6 @@ public class SecurityRepository {
         return null;
     }
 
-    public UserResponse getUserByCredentials(String login, String password) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(SQLCommands.AUTH_USER)) {
-            statement.setString(1, login);
-            statement.setString(2, password);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    UserResponse user = new UserResponse();
-                    user.setUsername(resultSet.getString("username"));
-                    user.setId(resultSet.getLong("id"));
-                    return user;
-                }
-            }
-        }
-        return null;
-    }
-
     public Optional<UserDto> getUserById(long id) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(SQLCommands.GET_USER_BY_ID_FULL)) {
             statement.setLong(1, id);
@@ -117,5 +99,18 @@ public class SecurityRepository {
             log.error("Error getting user role for id: {}", userId, e);
         }
         return Optional.empty();
+    }
+
+    public boolean existsByLogin(String login) throws SQLException {//TODO переделать
+        log.info("Checking if login exists: {}", login);
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommands.EXIST_BY_LOGIN)) {
+            ps.setString(1, login);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 }

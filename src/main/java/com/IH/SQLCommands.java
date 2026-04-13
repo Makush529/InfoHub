@@ -1,12 +1,7 @@
 package com.IH;
 
 public interface SQLCommands {
-    String AUTH_USER =
-            "SELECT users.id, users.username FROM security " +
-                    "JOIN users ON security.user_id = users.id " +
-                    "WHERE security.login = ? AND security.password = ?";
-
-    String REGISTER_USER =
+       String REGISTER_USER =
             "WITH inserted_user AS (" +
                     "    INSERT INTO users (username, user_age) VALUES (?, ?) RETURNING id" +
                     ") " +
@@ -42,5 +37,8 @@ public interface SQLCommands {
     String INSERT_LOG =
             "INSERT INTO logs (user_id, action, details, created_at) " +
                     "VALUES (?, ?, ?, CURRENT_TIMESTAMP)";
+
+    String EXIST_BY_LOGIN =
+            "SELECT COUNT(*) FROM security WHERE login = ?";
 
 }

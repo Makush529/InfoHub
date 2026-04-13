@@ -272,13 +272,10 @@ public class PostController {
 
         Long authorId = authorIdOpt.get();
 
-        boolean isAuthor = userId.equals(authorId);
-        boolean isModerator = authUtil.isModerator(userId);
-
-        if (!isAuthor && !isModerator) {
+        if (!authUtil.isOwner(userId, authorId)) {
             log.warn("<< User {} tried to delete post {} without permission", userId, id);
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("You are not the author of this post");
+                    .body("<< You are not the author of this post");
         }
 
         boolean deleted = postService.deletePost(id);
@@ -289,7 +286,7 @@ public class PostController {
         } else {
             log.info("<< Post {} could not be deleted", id);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Could not delete post");
+                    .body("<< Could not delete post");
         }
     }
 }
