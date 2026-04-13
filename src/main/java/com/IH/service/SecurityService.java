@@ -10,10 +10,8 @@ import com.IH.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -24,13 +22,11 @@ public class SecurityService {
 
     private final SecurityRepository securityRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
 
     @Autowired
     public SecurityService(SecurityRepository securityRepository, PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.securityRepository = securityRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
     }
 
     public UserResponse registration(RegisterRequest request) throws SQLException {
@@ -91,5 +87,4 @@ public class SecurityService {
             return Optional.empty();
         }
     }
-
 }

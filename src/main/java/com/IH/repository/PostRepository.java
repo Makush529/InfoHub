@@ -1,7 +1,6 @@
 package com.IH.repository;
 
-import com.IH.SQLCommandsPosts;
-import com.IH.model.dto.responce.PostResponse;
+import com.IH.util.SQLCommandsPosts;
 import com.IH.model.dto.PostStatus;
 import com.IH.model.dto.responce.PostDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.IH.SQLCommandsPosts.*;
+import static com.IH.util.SQLCommandsPosts.*;
 
 @Repository
 public class PostRepository {
@@ -197,7 +196,7 @@ public class PostRepository {
         post.setTitle(resultSet.getString("post_title"));
         post.setContent(resultSet.getString("text"));
         post.setCreatedAt(resultSet.getDate("post_age").toLocalDate());
-        post.setStatus(PostStatus.valueOf(resultSet.getString("status")));//TODO что то проверить, не помню что
+        post.setStatus(PostStatus.valueOf(resultSet.getString("status")));
         post.setAuthorId(resultSet.getLong("author_id"));
         post.setAuthorName(resultSet.getString("author_name"));
         post.setLikesCount(resultSet.getInt("likes_count"));

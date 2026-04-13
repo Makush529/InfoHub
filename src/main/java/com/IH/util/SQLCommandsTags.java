@@ -1,4 +1,4 @@
-package com.IH;
+package com.IH.util;
 
 public interface SQLCommandsTags {
     String GET_OR_CREATE_TAG =

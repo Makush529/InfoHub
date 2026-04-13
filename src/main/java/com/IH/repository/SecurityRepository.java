@@ -1,6 +1,6 @@
 package com.IH.repository;
 
-import com.IH.SQLCommands;
+import com.IH.util.SQLCommands;
 import com.IH.model.dto.responce.UserResponse;
 import com.IH.model.dto.UserRole;
 import com.IH.model.dto.responce.UserDto;
@@ -99,18 +99,5 @@ public class SecurityRepository {
             log.error("Error getting user role for id: {}", userId, e);
         }
         return Optional.empty();
-    }
-
-    public boolean existsByLogin(String login) throws SQLException {//TODO переделать
-        log.info("Checking if login exists: {}", login);
-        try (PreparedStatement ps = connection.prepareStatement(SQLCommands.EXIST_BY_LOGIN)) {
-            ps.setString(1, login);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
-            }
-        }
-        return false;
     }
 }

@@ -42,7 +42,7 @@ public class PostService {
 
             return Optional.ofNullable(postId);
         } catch (SQLException e) {
-            System.out.println("SQLException in DB: " + e.getMessage());//TODO log
+            log.warn("SQLException in DB: " + e.getMessage());
             e.printStackTrace();
             return Optional.empty();
         }
@@ -111,7 +111,7 @@ public class PostService {
             }
             return postRepository.addLike(postId, userId);
         } catch (SQLException e) {
-            System.out.println("SQLException add like: " + e.getMessage());//TODO log
+            log.error("SQLException add like: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -125,7 +125,7 @@ public class PostService {
             }
             return postRepository.addDislike(postId, userId);
         } catch (SQLException e) {
-            System.out.println("SQLException add disLike: " + e.getMessage());//TODO log
+            log.error("SQLException add disLike: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -137,7 +137,7 @@ public class PostService {
             boolean removeDislike = postRepository.removeDislike(postId, userId);
             return removeLike || removeDislike;
         } catch (SQLException e) {
-            System.out.println("SQLException removeReaction: " + e.getMessage());//TODO log
+            log.error("SQLException removeReaction: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

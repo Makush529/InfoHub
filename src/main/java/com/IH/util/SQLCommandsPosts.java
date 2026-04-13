@@ -1,4 +1,4 @@
-package com.IH;
+package com.IH.util;
 
 public interface SQLCommandsPosts {
     String CREATE_POST =

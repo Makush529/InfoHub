@@ -191,7 +191,7 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.OK).body(success);
         } else {
             log.warn("<< BAD_REQUEST: Reaction could not be removed.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);//TODO проверить, может 404
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(success);
         }
     }
 

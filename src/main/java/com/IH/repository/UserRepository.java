@@ -1,6 +1,6 @@
 package com.IH.repository;
 
-import com.IH.SQLCommands;
+import com.IH.util.SQLCommands;
 import com.IH.model.dto.responce.UserDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

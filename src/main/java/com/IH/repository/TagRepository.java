@@ -1,7 +1,7 @@
 package com.IH.repository;
 
 import com.IH.model.dto.responce.TagDto;
-import com.IH.SQLCommandsTags;
+import com.IH.util.SQLCommandsTags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

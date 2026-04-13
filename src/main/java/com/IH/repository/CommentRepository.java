@@ -1,7 +1,6 @@
 package com.IH.repository;
 
-import com.IH.SQLCommandsComments;
-import com.IH.SQLCommandsPosts;
+import com.IH.util.SQLCommandsComments;
 import com.IH.model.dto.CommentStatus;
 import com.IH.model.dto.responce.CommentDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ public class CommentRepository {
                 }
             }
         }
-        throw new SQLException("Failed to create comment, no ID returned");//TODO доделать исключения
+        throw new SQLException("Failed to create comment, no ID returned");
     }
 
     public List<CommentDto> getCommentByPost(Long postId, Long currentUserId) throws SQLException {
@@ -92,7 +91,7 @@ public class CommentRepository {
         }
     }
 
-    private CommentDto mapResultSetToCommentDto(ResultSet rs, Long currentUserId) throws SQLException {//TODO глянуть
+    private CommentDto mapResultSetToCommentDto(ResultSet rs, Long currentUserId) throws SQLException {
         CommentDto comment = new CommentDto();
         comment.setId(rs.getLong("id"));
         comment.setContent(rs.getString("content"));

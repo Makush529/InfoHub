@@ -16,10 +16,10 @@ public class PostDto {
     private Long authorId;
     private int likesCount;
     private int dislikesCount;
-    private int rating; //TODO likes - dislikes
+    private int rating;
     private PostStatus status;
     private List<String> tags;
-    private boolean userLiked; //TODO проверить для текущего пользователя
-    private boolean userDisliked; //TODO проверить для текущего пользователя
+    private boolean userLiked;
+    private boolean userDisliked;
 
 }

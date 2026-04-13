@@ -35,7 +35,6 @@ import java.util.Optional;
 @RequestMapping("/auth")
 @Tag(name = "Authorization", description = "API for registration, login, and session management")
 public class AuthController {
-    Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final SecurityService securityService;
     private final UserService userService;
