@@ -1,6 +1,5 @@
 package com.IH.service;
 
-import com.IH.model.dto.responce.PostResponse;
 import com.IH.model.dto.PostStatus;
 import com.IH.model.dto.request.CreatePostRequest;
 import com.IH.model.dto.responce.PostDto;
