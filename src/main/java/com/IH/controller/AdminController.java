@@ -1,10 +1,14 @@
 package com.IH.controller;
 
+import com.IH.model.dto.UserRole;
+import com.IH.model.dto.request.ChangeRoleRequest;
 import com.IH.model.dto.responce.CommentDto;
 import com.IH.model.dto.responce.PostDto;
+import com.IH.model.dto.responce.UserDto;
 import com.IH.service.CommentService;
 import com.IH.service.LogService;
 import com.IH.service.PostService;
+import com.IH.service.SecurityService;
 import com.IH.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,7 +24,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -33,13 +40,15 @@ public class AdminController {
     private final AuthUtil authUtil;
     private final CommentService commentService;
     private final LogService logService;
+    private final SecurityService securityService;
 
     @Autowired
-    public AdminController(PostService postService, AuthUtil authUtil, CommentService commentService, LogService logService) {
+    public AdminController(PostService postService, AuthUtil authUtil, CommentService commentService, LogService logService, SecurityService securityService) {
         this.postService = postService;
         this.authUtil = authUtil;
         this.commentService = commentService;
         this.logService = logService;
+        this.securityService = securityService;
     }
 
     @GetMapping("/posts/pending")
@@ -246,5 +255,59 @@ public class AdminController {
             log.error("<< Comment {} rejected by user {}", id, userId);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Could not reject comment");
         }
+    }
+
+    @PutMapping("/users/{userId}/role")
+    public ResponseEntity<?> changeUserRole(@PathVariable Long userId,
+                                            @RequestBody ChangeRoleRequest request,
+                                            HttpServletRequest httpRequest) {
+
+        // 1. Получаем текущего пользователя из токена (через request)
+        Long currentUserId = (Long) httpRequest.getAttribute("userId");
+
+        // 2. Проверка: только ADMIN может менять роли
+        if (!authUtil.isAdmin(currentUserId)) {
+            log.warn("User {} tried to change role without ADMIN rights", currentUserId);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Access denied. Admin role required."));
+        }
+
+        // 3. Проверка: нельзя менять роль самому себе
+        if (currentUserId.equals(userId)) {
+            log.warn("Admin {} tried to change his own role", currentUserId);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "You cannot change your own role"));
+        }
+
+        // 4. Проверка: существует ли пользователь
+        Optional<UserDto> userOpt = securityService.findById(userId);
+        if (userOpt.isEmpty()) {
+            log.warn("User not found: {}", userId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
+        }
+
+        // 5. Проверка: валидная ли роль
+        UserRole newRole;
+        try {
+            newRole = UserRole.valueOf(request.getRole().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid role name: {}", request.getRole());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Invalid role. Available: USER, MODERATOR, ADMIN"));
+        }
+
+        // 6. Меняем роль
+        securityService.updateUserRole(userId, newRole);
+
+        log.info("Admin {} changed role of user {} to {}", currentUserId, userId, newRole);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("userId", userId);
+        response.put("username", userOpt.get().getUsername());
+        response.put("newRole", newRole.name());
+        response.put("message", "Role changed successfully");
+
+        return ResponseEntity.ok(response);
     }
 }

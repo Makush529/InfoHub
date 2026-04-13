@@ -37,4 +37,7 @@ public interface SQLCommands {
     String INSERT_LOG =
             "INSERT INTO logs (user_id, action, details, created_at) " +
                     "VALUES (?, ?, ?, CURRENT_TIMESTAMP)";
+
+    String DELETE_USER_ROLE = "DELETE FROM user_roles WHERE user_id = ?";
+    String INSERT_USER_ROLE = "INSERT INTO user_roles (user_id, role) VALUES (?, ?)";
 }

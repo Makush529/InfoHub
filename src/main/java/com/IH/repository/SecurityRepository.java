@@ -4,6 +4,7 @@ import com.IH.util.SQLCommands;
 import com.IH.model.dto.responce.UserResponse;
 import com.IH.model.dto.UserRole;
 import com.IH.model.dto.responce.UserDto;
+import com.IH.util.SQLCommandsPosts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -99,5 +100,17 @@ public class SecurityRepository {
             log.error("Error getting user role for id: {}", userId, e);
         }
         return Optional.empty();
+    }
+
+    public void updateUserRole(Long userId, UserRole newRole) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommands.DELETE_USER_ROLE)) {
+            ps.setLong(1, userId);
+            ps.executeUpdate();
+        }
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommands.INSERT_USER_ROLE)) {
+            ps.setLong(1, userId);
+            ps.setString(2, newRole.name());
+            ps.executeUpdate();
+        }
     }
 }

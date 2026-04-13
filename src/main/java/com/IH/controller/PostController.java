@@ -3,8 +3,10 @@ package com.IH.controller;
 import com.IH.model.dto.request.CreatePostRequest;
 import com.IH.model.dto.responce.PostDto;
 import com.IH.model.dto.responce.TagDto;
+import com.IH.model.dto.responce.UserDto;
 import com.IH.repository.TagRepository;
 import com.IH.service.PostService;
+import com.IH.service.SecurityService;
 import com.IH.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,12 +36,14 @@ public class PostController {
     private final PostService postService;
     private final TagRepository tagRepository;
     private final AuthUtil authUtil;
+    private final SecurityService securityService;
 
     @Autowired
-    public PostController(PostService postService, TagRepository tagRepository, AuthUtil authUtil) {
+    public PostController(PostService postService, TagRepository tagRepository, AuthUtil authUtil, SecurityService securityService) {
         this.postService = postService;
         this.tagRepository = tagRepository;
         this.authUtil = authUtil;
+        this.securityService = securityService;
     }
 
     @PostMapping()
@@ -211,10 +215,11 @@ public class PostController {
     })
     public ResponseEntity<List<TagDto>> getAllTags() {
         log.debug(">> get all tags");
-        try{List<TagDto>tags =tagRepository.getAllTags();
-            log.debug("<< tags were sent successfully {}}",tags.size());
-        return ResponseEntity.status(HttpStatus.OK).body(tags);}
-        catch(Exception e){
+        try {
+            List<TagDto> tags = tagRepository.getAllTags();
+            log.debug("<< tags were sent successfully {}}", tags.size());
+            return ResponseEntity.status(HttpStatus.OK).body(tags);
+        } catch (Exception e) {
             log.error("<< Error getting all tags", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
@@ -236,47 +241,48 @@ public class PostController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
 
-    public ResponseEntity<List<PostDto>>getPostsByTags(@PathVariable String tagName, HttpServletRequest request) {
+    public ResponseEntity<List<PostDto>> getPostsByTags(@PathVariable String tagName, HttpServletRequest request) {
         log.debug(">> get posts by tags {}", tagName);
-        try{
-            Long userId = (request!=null)?(Long) request.getAttribute("userId"):null;
+        try {
+            Long userId = (request != null) ? (Long) request.getAttribute("userId") : null;
 
-            List <Long>postIds = tagRepository.getPostIdsByTagId(tagName);
+            List<Long> postIds = tagRepository.getPostIdsByTagId(tagName);
 
-            List<PostDto>posts=new ArrayList<>();
+            List<PostDto> posts = new ArrayList<>();
             for (Long postId : postIds) {
-                Optional<PostDto>postDtoOptional = postService.getPostById(postId, userId);
+                Optional<PostDto> postDtoOptional = postService.getPostById(postId, userId);
                 if (postDtoOptional.isPresent()) {
                     posts.add(postDtoOptional.get());
                 }
             }
-            log.debug("<<posts were sent successfully {}}",posts.size());
+            log.debug("<<posts were sent successfully {}}", posts.size());
             return ResponseEntity.status(HttpStatus.OK).body(posts);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("<<Error getting posts by tags", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/liked")
-    @Operation(summary = "Get posts liked by current user",
-            description = "Returns all posts that the current user has liked, sorted from most recent like")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Posts retrieved successfully"),
-            @ApiResponse(responseCode = "401", description = "User is not authenticated")
-    })
-    @SecurityRequirement(name = "BearerAuth")
-    public ResponseEntity<List<PostDto>> getLikedPosts(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-
-        if (userId == null) {
-            log.warn("<< Unauthorized: user not logged in");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+    @GetMapping("/liked/{userId}")
+    public ResponseEntity<?> getLikedPosts(@PathVariable Long userId, HttpServletRequest request) {
         log.debug(">> Getting liked posts for user: {}", userId);
+        Long currentUserId = (Long) request.getAttribute("userId");
+        if (!userId.equals(currentUserId)) {
+            log.warn("User {} tried to view liked posts of user {}", currentUserId, userId);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You can only view your own liked posts");
+        }
+        Optional<UserDto> userOpt = securityService.findById(userId);
+        if (userOpt.isEmpty()) {
+            log.warn("<< User not found: {}", userId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         List<PostDto> posts = postService.getLikedPostsByUser(userId);
-        log.debug("<< Found {} liked posts", posts.size());
+        if (posts.isEmpty()) {
+            log.debug("<< User {} has no liked posts", userId);
+            return ResponseEntity.ok("You haven't liked any posts yet");
+        }
+        log.debug("<< Found {} liked posts for user {}", posts.size(), userId);
         return ResponseEntity.ok(posts);
     }
 
@@ -290,8 +296,7 @@ public class PostController {
             @ApiResponse(responseCode = "500", description = "Could not delete post (internal error)")
     })
     @SecurityRequirement(name = "BearerAuth")
-    public ResponseEntity<?> deletePost(@PathVariable Long id,
-                                        HttpServletRequest request) {
+    public ResponseEntity<?> deletePost(@PathVariable Long id, HttpServletRequest request) {
         log.debug(">> delete post, post id = {}", id);
         Long userId = (Long) request.getAttribute("userId");
 

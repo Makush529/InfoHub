@@ -90,4 +90,6 @@ public interface SQLCommandsPosts {
 
     String GET_POST_STATUS =
             "SELECT status FROM posts WHERE id = ?";
+
+
 }

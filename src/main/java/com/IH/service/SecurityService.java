@@ -87,4 +87,12 @@ public class SecurityService {
             return Optional.empty();
         }
     }
+
+    public void updateUserRole(Long userId, UserRole newRole) {
+        try {
+            securityRepository.updateUserRole(userId, newRole);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update user role");
+        }
+    }
 }
