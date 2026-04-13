@@ -48,6 +48,19 @@ public interface SQLCommandsPosts {
                     "WHERE p.status = 'PENDING' " +
                     "ORDER BY p.post_age ASC";
 
+    String GET_LIKED_POSTS_BY_USER =
+            "SELECT p.id, p.post_title, p.text, p.post_age, p.status, " +
+                    "       u.id as author_id, u.username as author_name, " +
+                    "       COALESCE(ul.likes, 0) as likes_count, " +
+                    "       COALESCE(ud.dislikes, 0) as dislikes_count " +
+                    "FROM posts p " +
+                    "JOIN users u ON p.user_id = u.id " +
+                    "JOIN user_likes l ON p.id = l.post_id " +
+                    "LEFT JOIN (SELECT post_id, COUNT(*) as likes FROM user_likes GROUP BY post_id) ul ON p.id = ul.post_id " +
+                    "LEFT JOIN (SELECT post_id, COUNT(*) as dislikes FROM user_dislikes GROUP BY post_id) ud ON p.id = ud.post_id " +
+                    "WHERE l.user_id = ? AND p.status = 'APPROVED' " +
+                    "ORDER BY l.id DESC";
+
     String DELETE_POST_BY_ID =
             "DELETE FROM posts WHERE id = ?";
 
@@ -74,4 +87,7 @@ public interface SQLCommandsPosts {
 
     String GET_POST_AUTHOR =
             "SELECT user_id FROM posts WHERE id = ?";
+
+    String GET_POST_STATUS =
+            "SELECT status FROM posts WHERE id = ?";
 }

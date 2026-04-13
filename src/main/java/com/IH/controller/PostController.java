@@ -235,6 +235,7 @@ public class PostController {
             @ApiResponse(responseCode = "404", description = "Tag not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+
     public ResponseEntity<List<PostDto>>getPostsByTags(@PathVariable String tagName, HttpServletRequest request) {
         log.debug(">> get posts by tags {}", tagName);
         try{
@@ -255,6 +256,28 @@ public class PostController {
             log.error("<<Error getting posts by tags", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/liked")
+    @Operation(summary = "Get posts liked by current user",
+            description = "Returns all posts that the current user has liked, sorted from most recent like")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Posts retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "User is not authenticated")
+    })
+    @SecurityRequirement(name = "BearerAuth")
+    public ResponseEntity<List<PostDto>> getLikedPosts(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        if (userId == null) {
+            log.warn("<< Unauthorized: user not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        log.debug(">> Getting liked posts for user: {}", userId);
+        List<PostDto> posts = postService.getLikedPostsByUser(userId);
+        log.debug("<< Found {} liked posts", posts.size());
+        return ResponseEntity.ok(posts);
     }
 
     @DeleteMapping("/{id}")

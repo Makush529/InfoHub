@@ -103,8 +103,22 @@ public class PostService {
         }
     }
 
+    public List<PostDto> getLikedPostsByUser(Long userId) {
+        try {
+            return postRepository.getLikedPostsByUser(userId);
+        } catch (SQLException e) {
+            log.error("Error getting liked posts for user: {}", userId, e);
+            return List.of();
+        }
+    }
+
     public boolean addLike(Long postId, Long userId) {
         try {
+            String postStatus = postRepository.getPostStatus(postId);
+            if (!"APPROVED".equals(postStatus)) {
+                log.warn("Cannot like post {} with status: {}", postId, postStatus);
+                return false;
+            }
             postRepository.removeDislike(postId, userId);
             if (postRepository.checkUserLike(postId, userId)) {
                 return false;
@@ -119,6 +133,11 @@ public class PostService {
 
     public boolean addDislike(Long postId, Long userId) {
         try {
+            String postStatus = postRepository.getPostStatus(postId);
+            if (!"APPROVED".equals(postStatus)) {
+                log.warn("Cannot like post {} with status: {}", postId, postStatus);
+                return false;
+            }
             postRepository.removeLike(postId, userId);
             if (postRepository.checkUserDilLike(postId, userId)) {
                 return false;
@@ -133,6 +152,11 @@ public class PostService {
 
     public boolean removeReaction(Long postId, Long userId) {
         try {
+            String postStatus = postRepository.getPostStatus(postId);
+            if (!"APPROVED".equals(postStatus)) {
+                log.warn("Cannot like post {} with status: {}", postId, postStatus);
+                return false;
+            }
             boolean removeLike = postRepository.removeLike(postId, userId);
             boolean removeDislike = postRepository.removeDislike(postId, userId);
             return removeLike || removeDislike;

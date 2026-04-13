@@ -120,6 +120,18 @@ public class PostRepository {
         return Optional.empty();
     }
 
+    public String getPostStatus(Long postId) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(GET_POST_STATUS)) {
+            ps.setLong(1, postId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("status");
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean addLike(Long postId, Long userId) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(ADD_LIKE)) {
             statement.setLong(1, postId);
@@ -185,6 +197,22 @@ public class PostRepository {
                     post.setUserDisliked(checkUserDilLike(post.getId(), currentUserId));
                 }
                 posts.add(post);
+            }
+        }
+        return posts;
+    }
+
+    public List<PostDto> getLikedPostsByUser(Long userId) throws SQLException {
+        List<PostDto> posts = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(SQLCommandsPosts.GET_LIKED_POSTS_BY_USER)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PostDto post = mapResultSetToPostDto(rs);
+                    post.setUserLiked(true);  // Это понравившиеся посты, userLiked = true
+                    posts.add(post);
+                }
             }
         }
         return posts;
