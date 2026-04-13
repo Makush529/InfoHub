@@ -36,7 +36,7 @@ public class UserRepository {
                 }
             }
         }
-        return Optional.empty(); // Если юзер не найден
+        return Optional.empty();
     }
 
     public int getUserRating(long id) throws SQLException {

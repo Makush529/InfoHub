@@ -10,6 +10,6 @@ public class UserDto {
     private String username;
     private String login;
     private LocalDate birthDate;
-    private int rating; // рейтинг пользователя
-    private String role; // роль
+    private int rating;
+    private String role;
 }

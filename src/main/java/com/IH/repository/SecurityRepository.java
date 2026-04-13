@@ -76,7 +76,7 @@ public class SecurityRepository {
                 }
             }
         }
-        return Optional.empty(); // Если юзер не найден
+        return Optional.empty();
     }
 
     public void addUserRole(Long userId, UserRole role) throws SQLException {

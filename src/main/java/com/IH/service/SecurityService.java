@@ -81,7 +81,7 @@ public class SecurityService {
 
     public Optional<UserRole> getUserRole(Long userId) {
         try {
-            return securityRepository.getUserRole(userId);  // ← возвращаем Optional<UserRole>
+            return securityRepository.getUserRole(userId);
         } catch (SQLException e) {
             log.error("Error getting user role", e);
             return Optional.empty();
